@@ -62,7 +62,7 @@ function CapabilityRow({
 export function DiagnosticsSettingsPage() {
     const diagnostics = useDeviceDiagnostics();
     const { t } = useTranslation(["ui"]);
-    const { webgl, capabilities, resolution, memory, fps } = diagnostics;
+    const { webgl, capabilities, mobile, native, resolution, memory, fps } = diagnostics;
     const yesNo = (value: boolean | null) =>
         value === null
             ? t("diagnostics_unknown")
@@ -135,9 +135,40 @@ export function DiagnosticsSettingsPage() {
                         value={diagnostics.browserEngine}
                     />
                     <DiagnosticRow
+                        label={t("diagnostics_engine_version")}
+                        value={diagnostics.engineVersion ?? t("diagnostics_unknown")}
+                    />
+                    <DiagnosticRow
                         label={t("diagnostics_user_agent")}
                         value={diagnostics.userAgent}
                     />
+                </DiagnosticsSection>
+
+                <DiagnosticsSection title={t("diagnostics_section_native")}>
+                    {native ? (
+                        <>
+                            <DiagnosticRow
+                                label={t("diagnostics_os")}
+                                value={`${native.osType} ${native.osVersion}`}
+                            />
+                            <DiagnosticRow
+                                label={t("diagnostics_os_bitness")}
+                                value={native.bitness}
+                            />
+                            <DiagnosticRow
+                                label={t("diagnostics_os_architecture")}
+                                value={native.architecture}
+                            />
+                            <DiagnosticRow
+                                label={t("diagnostics_webview_version")}
+                                value={native.engineVersion ?? t("diagnostics_unknown")}
+                            />
+                        </>
+                    ) : (
+                        <p className="text-sm text-muted-foreground">
+                            {t("diagnostics_native_unavailable")}
+                        </p>
+                    )}
                 </DiagnosticsSection>
 
                 <DiagnosticsSection title={t("diagnostics_section_graphics")}>
@@ -162,6 +193,14 @@ export function DiagnosticsSettingsPage() {
                         value={webgl.unmaskedRenderer ?? webgl.renderer ?? t("diagnostics_unknown")}
                     />
                     <DiagnosticRow
+                        label={t("diagnostics_gpu_vendor_brand")}
+                        value={webgl.gpuVendorBrand}
+                    />
+                    <DiagnosticRow
+                        label={t("diagnostics_mesa_driver")}
+                        value={webgl.mesaVersion ?? t("diagnostics_not_detected")}
+                    />
+                    <DiagnosticRow
                         label={t("diagnostics_max_texture_size")}
                         value={webgl.maxTextureSize ?? t("diagnostics_unknown")}
                     />
@@ -179,6 +218,33 @@ export function DiagnosticsSettingsPage() {
                     <DiagnosticRow
                         label={t("diagnostics_fps")}
                         value={fps ?? t("diagnostics_unknown")}
+                    />
+                </DiagnosticsSection>
+
+                <DiagnosticsSection title={t("diagnostics_section_mobile")}>
+                    <DiagnosticRow
+                        label={t("diagnostics_touch_support")}
+                        value={
+                            mobile.touchSupported
+                                ? `${t("diagnostics_yes")} (${mobile.maxTouchPoints})`
+                                : t("diagnostics_no")
+                        }
+                    />
+                    <DiagnosticRow
+                        label={t("diagnostics_device_memory")}
+                        value={
+                            mobile.deviceMemoryGb !== null
+                                ? `${mobile.deviceMemoryGb} GB`
+                                : t("diagnostics_not_available")
+                        }
+                    />
+                    <DiagnosticRow
+                        label={t("diagnostics_network_type")}
+                        value={mobile.networkEffectiveType ?? t("diagnostics_not_available")}
+                    />
+                    <DiagnosticRow
+                        label={t("diagnostics_screen_orientation")}
+                        value={mobile.screenOrientation ?? t("diagnostics_unknown")}
                     />
                 </DiagnosticsSection>
 

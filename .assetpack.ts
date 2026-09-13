@@ -3,6 +3,8 @@ import { path } from "@assetpack/core";
 import { pixiPipes } from "@assetpack/core/pixi";
 import fs from "node:fs/promises";
 
+const isNativeBuild = !process.env.ROVES_BUILD;
+
 const manifestOutput = "src/assets/manifest.gen.json";
 
 /**
@@ -89,6 +91,12 @@ const config: AssetPackConfig = {
                 output: manifestOutput,
                 createShortcuts: true,
             },
+            // Native builds: skip @0.5x mipmaps (unused on desktop, WebView/Servo handle DPR)
+            resolutions: isNativeBuild ? { default: 1 } : undefined,
+            // Native builds: raise WebP quality — files are local so bandwidth is not a concern
+            compression: isNativeBuild
+                ? { png: true, jpg: true, webp: { quality: 88, alphaQuality: 88 } }
+                : undefined,
         }),
         groupBundlesByFolder({ output: manifestOutput }),
         normalizeAliases({ output: manifestOutput }),

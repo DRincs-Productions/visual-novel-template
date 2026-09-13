@@ -18,13 +18,20 @@
       "preLaunchTask": "Restart Vite Dev Server"
     },
     {
-      "name": "Debug Game Preview",
+      "name": "Game Preview",
       "request": "launch",
       "type": "editor-browser",
       "url": "http://localhost:4173",
       "webRoot": "${workspaceFolder}",
       "preLaunchTask": "Start Vite Preview Server",
       "postDebugTask": "Stop Vite Preview Server"
+    },
+    {
+      "name": "Game Preview (Desktop)",
+      "type": "roves",
+      "request": "launch",
+      "preLaunchTask": "Build",
+      "distFolder": "dist"
     }
   ]
 }

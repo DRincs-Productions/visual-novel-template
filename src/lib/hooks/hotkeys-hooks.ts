@@ -13,7 +13,7 @@ import { QuickActionsWheelState } from "@/lib/stores/quick-actions-wheel-store";
 import { SearchParams } from "@/lib/stores/search-param-store";
 import { SkipSettings } from "@/lib/stores/skip-settings-store";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
-import { getSaveSlotLabel, loadSave, quickSaveGameToIndexDB } from "@/lib/utils/save-utility";
+import { quickSave as performQuickSave, save } from "@/lib/utils/save-utility";
 import { narration } from "@drincs/pixi-vn";
 import { useHotkeys } from "@tanstack/react-hotkeys";
 import { useQueryClient } from "@tanstack/react-query";
@@ -72,7 +72,7 @@ export function useSaveHotkeys(): null {
             console.log("Can't save on home page");
             return;
         }
-        const savePromise = quickSaveGameToIndexDB().then((save) => {
+        const savePromise = performQuickSave().then((save) => {
             queryClient.setQueryData([SAVES_USE_QUERY_KEY, save.id], save);
             queryClient.setQueryData([LAST_SAVE_USE_QUERY_KEY], save);
         });
@@ -91,10 +91,11 @@ export function useSaveHotkeys(): null {
         openAlertDialog({
             head: t("load"),
             content: t("you_sure_to_load_save", {
-                name: lastSave.name || getSaveSlotLabel(lastSave.id, t),
+                name: lastSave.name || save.getSlotLabel(lastSave.id, t),
             }),
             onConfirm: () =>
-                loadSave(lastSave)
+                save
+                    .restore(lastSave)
                     .then(() => {
                         gameProps.invalidateInterfaceData();
                         toast.success(t("success_load"));

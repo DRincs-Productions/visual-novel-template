@@ -1,3 +1,22 @@
 {
-  "bundles": []
+  "bundles": [
+    {
+      "name": "images",
+      "assets": [
+        {
+          "alias": [
+            "images_main-menu",
+            "main-menu"
+          ],
+          "src": [
+            "images/main-menu-QVRZMw.webp",
+            "images/main-menu-7bLsRQ.jpg"
+          ],
+          "data": {
+            "tags": {}
+          }
+        }
+      ]
+    }
+  ]
 }

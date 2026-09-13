@@ -13,6 +13,7 @@ import {
     narration,
     stepHistory,
     type StepLabelPropsType,
+    type StorageElementType,
     type StoredIndexedChoiceInterface,
 } from "@drincs/pixi-vn";
 import { useDebouncer } from "@tanstack/react-pacer";
@@ -80,8 +81,8 @@ export function useNarrationFunctions() {
         async (item: StoredIndexedChoiceInterface) => {
             if (hasOpenMenu) return;
             GameStatus.setLoading(true);
-            return narration
-                .selectChoice(item, gameProps)
+            return narration.choices
+                .select(item, gameProps)
                 .then(() => {
                     gameProps.invalidateInterfaceData();
                     GameStatus.setLoading(false);
@@ -142,6 +143,15 @@ export function useNarrationFunctions() {
         [gameProps, hasOpenMenu],
     );
 
+    const submitInputValue = useCallback(
+        (value: StorageElementType) => {
+            if (hasOpenMenu) return;
+            narration.input.value = value;
+            gameProps.invalidateInterfaceData();
+        },
+        [gameProps, hasOpenMenu],
+    );
+
     return {
         goNext,
         goBack,
@@ -149,6 +159,7 @@ export function useNarrationFunctions() {
         startNewGame,
         jump,
         call,
+        submitInputValue,
     };
 }
 

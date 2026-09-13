@@ -34,6 +34,7 @@ export default defineConfig(({ mode }) => ({
         react(),
         tailwindcss(),
         vitePluginPixivn({
+            workerFilePath: "./src/pixi-vn.worker.gen.ts",
             content: "./src/content/index.ts",
             characters: "./src/content/characters.ts",
             labels: "./src/content/labels/*.label.ts",
@@ -108,6 +109,12 @@ export default defineConfig(({ mode }) => ({
     define: {
         __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
         __APP_NAME__: JSON.stringify(process.env.npm_package_name),
+        // Set by whoever builds specifically for Roves (e.g. `ROVES_BUILD=true npm run
+        // build`, or a CI step that only runs for the Roves target) -- lets the app's own
+        // code branch on "am I being built for Roves" at build time, alongside (not instead
+        // of) `@drincs/roves-api/core`'s `isAvailable()` runtime check, which only answers
+        // "am I *currently running* inside Roves" and can't be used at build time.
+        "process.env.ROVES_BUILD": JSON.stringify(process.env.ROVES_BUILD ?? ""),
     },
     build: {
         rollupOptions: {
