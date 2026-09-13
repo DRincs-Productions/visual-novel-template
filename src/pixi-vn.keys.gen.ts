@@ -12,8 +12,8 @@ declare module "@drincs/pixi-vn/characters" {
 declare module "@drincs/pixi-vn/narration" {
     interface PixivnLabelIds {
         "second_part": never;
-        "animation_01": never;
         "start": never;
+        "animation_01": never;
     }
 }
 declare module "@drincs/pixi-vn/canvas" {
@@ -87,8 +87,8 @@ declare module "@drincs/pixi-vn/canvas" {
 }
 export const characterIds = ["mc","james","steph","sly"] as const;
 export const characterIdsEnum = {"mc":"mc","james":"james","steph":"steph","sly":"sly"} as const;
-export const labelIds = ["second_part","animation_01","start"] as const;
-export const labelIdsEnum = {"second_part":"second_part","animation_01":"animation_01","start":"start"} as const;
+export const labelIds = ["second_part","start","animation_01"] as const;
+export const labelIdsEnum = {"second_part":"second_part","start":"start","animation_01":"animation_01"} as const;
 export const bundleIds = ["images","audio","start","second_part","fm01","fm02","m01"] as const;
 export const bundleIdsEnum = {"images":"images","audio":"audio","start":"start","second_part":"second_part","fm01":"fm01","fm02":"fm02","m01":"m01"} as const;
 export const assetAliasIds = ["images_main-menu","main-menu","bgm_cheerful","sfx_whoosh","bg01-hallway","bg02-dorm","fm01-body","fm01-eyes-grin","fm01-eyes-smile","fm01-eyes-soft","fm01-eyes-upset","fm01-eyes-wow","fm01-mouth-grin00","fm01-mouth-serious00","fm01-mouth-serious01","fm01-mouth-smile00","fm01-mouth-smile01","fm01-mouth-soft00","fm01-mouth-soft01","fm01-mouth-upset00","fm01-mouth-upset01","fm01-mouth-wow01","fm02-body","fm02-eyes-bawl","fm02-eyes-joy","fm02-eyes-nervous","fm02-eyes-smile","fm02-eyes-upset","fm02-eyes-wow","fm02-mouth-cry01","fm02-mouth-nervous00","fm02-mouth-nervous01","fm02-mouth-smile00","fm02-mouth-smile01","fm02-mouth-upset00","fm02-mouth-upset01","fm02-mouth-wow01","m01-body","m01-eyes-annoy","m01-eyes-concern","m01-eyes-cry","m01-eyes-grin","m01-eyes-smile","m01-eyes-wow","m01-mouth-annoy00","m01-mouth-annoy01","m01-mouth-concern00","m01-mouth-concern01","m01-mouth-cry00","m01-mouth-cry01","m01-mouth-grin00","m01-mouth-neutral00","m01-mouth-neutral01","m01-mouth-smile00","m01-mouth-smile01","m01-mouth-wow01"] as const;
