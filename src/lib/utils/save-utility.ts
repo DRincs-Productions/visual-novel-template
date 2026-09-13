@@ -8,10 +8,10 @@ import { saves as rovesSaves } from "@drincs/roves-api/saves";
 const SAVE_FILE_EXTENSION = "json";
 
 /** Snapshots the current game state into a {@link GameSaveData}, ready to pass to {@link save}. */
-function create(options?: { image?: string; name?: string }): GameSaveData {
+async function create(options?: { image?: string; name?: string }): Promise<GameSaveData> {
     const { image, name = "" } = options || {};
     return {
-        saveData: Game.exportGameState(),
+        saveData: await Game.exportGameState(),
         gameVersion: __APP_VERSION__,
         date: new Date(),
         name: name,
@@ -22,11 +22,11 @@ function create(options?: { image?: string; name?: string }): GameSaveData {
 /** Persists a save under `info.id`, to whichever backend (Roves or IndexedDB) is active. */
 export async function save(
     info: Partial<GameSaveData> & { id: number },
-    data = create(),
+    data?: GameSaveData,
 ): Promise<GameSaveData & { id: number }> {
     const { image = await canvas.extractImage(), ...rest } = info;
     const item = {
-        ...data,
+        ...(data ?? (await create())),
         image: image,
         ...rest,
     };
@@ -83,7 +83,8 @@ export namespace save {
     }
 
     /** Downloads `data` (or a fresh snapshot of the current game) as a `.json` file. */
-    export function download(data: GameSaveData = create()) {
+    export async function download(data?: GameSaveData) {
+        data ??= await create();
         const jsonString = JSON.stringify(data);
         // download the save data as a JSON file
         const blob = new Blob([jsonString], { type: "application/json" });
@@ -196,7 +197,7 @@ export namespace autoExit {
 
     /** Snapshots the current game state into localStorage, e.g. before the tab closes/hides. */
     export async function add() {
-        const data = create();
+        const data = await create();
         const jsonString = JSON.stringify(data);
         if (jsonString) {
             localStorage.setItem(AUTO_EXIT_SAVE_LOCAL_STORAGE_KEY, jsonString);

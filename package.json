@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
-    "@drincs/pixi-vn": "^1.9.0",
+    "@drincs/pixi-vn": "^1.9.3",
     "@drincs/roves-api": "^0.7.0",
     "@tailwindcss/vite": "^4.3.0",
     "@tanstack/hotkeys": "^0.8.0",
