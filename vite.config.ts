@@ -33,6 +33,7 @@ export default defineConfig(({ mode }) => ({
         react(),
         tailwindcss(),
         vitePluginPixivn({
+            workerFilePath: "./src/pixi-vn.worker.gen.ts",
             content: "./src/content/index.ts",
             characters: "./src/content/characters.ts",
             labels: "./src/content/labels/*.label.ts",
