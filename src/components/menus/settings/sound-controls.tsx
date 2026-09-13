@@ -25,7 +25,7 @@ export function SoundControls() {
                 onVolumeChange={(v) => MasterSound.setVolume(v)}
             />
 
-            {sound.channels.map((c) => (
+            {sound.channels.values.map((c) => (
                 <SoundChannelControl
                     key={c.alias}
                     label={t(`${c.alias}_volume`)}

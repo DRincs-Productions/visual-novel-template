@@ -7,15 +7,16 @@ import { CANVAS_UI_LAYER_NAME, overlayTextShadowClass } from "@/constants";
 import { useNarrationFunctions } from "@/lib/hooks/narration-hooks";
 import { useSetSearchParamState } from "@/lib/hooks/navigation-hooks";
 import { useGameProps } from "@/lib/hooks/props-hooks";
+import { useQuit } from "@/lib/hooks/quit-hooks";
 import { useQueryLastSave } from "@/lib/query/save-query";
 import { GameStatus } from "@/lib/stores/game-status-store";
 import { cn } from "@/lib/utils";
-import { loadAutoExitSave, loadSave } from "@/lib/utils/save-utility";
+import { autoExit, save } from "@/lib/utils/save-utility";
 import { canvas, ImageSprite } from "@drincs/pixi-vn";
 import { useHotkeys } from "@tanstack/react-hotkeys";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSelector } from "@tanstack/react-store";
-import { AlertCircle, CirclePlay, Play, Save, Settings } from "lucide-react";
+import { AlertCircle, CirclePlay, LogOut, Play, Save, Settings } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -31,6 +32,7 @@ export function MainMenu() {
     const { startNewGame } = useNarrationFunctions();
     const loading = useSelector(GameStatus.store, (state) => state.loading);
     const menuRef = useRef<HTMLDivElement>(null);
+    const { quit, canQuit } = useQuit();
 
     /** Returns all enabled menuitem buttons inside the menu container. */
     function getMenuItems(): HTMLButtonElement[] {
@@ -113,7 +115,7 @@ export function MainMenu() {
     ]);
 
     useEffect(() => {
-        const bg = new ImageSprite({}, "background_main_menu");
+        const bg = new ImageSprite({}, "images_main-menu");
         bg.load();
         const layer = canvas.getLayer(CANVAS_UI_LAYER_NAME);
         if (layer) {
@@ -180,6 +182,19 @@ export function MainMenu() {
                         {t("settings")}
                     </Button>
 
+                    {canQuit && (
+                        <Button
+                            role="menuitem"
+                            onClick={quit}
+                            disabled={loading}
+                            variant="outline"
+                            className={menuButtonClass}
+                        >
+                            <LogOut className="size-4" />
+                            {t("quit")}
+                        </Button>
+                    )}
+
                     {loading ? (
                         <div
                             className="flex items-center justify-end pt-1 text-muted-foreground"
@@ -224,7 +239,7 @@ export function ContinueMenuButton({
         if (!lastSave) return;
         setLoading(true);
         onLoadingChange?.(true);
-        (hasAutoExitSave ? loadAutoExitSave() : loadSave(lastSave))
+        (hasAutoExitSave ? autoExit.load() : save.restore(lastSave))
             .then(() => queryClient.invalidateQueries())
             .catch((e) => {
                 toast.error(t("fail_load"));

@@ -65,6 +65,19 @@
       "dependsOrder": "sequence"
     },
     {
+      "label": "Build",
+      "type": "shell",
+      "command": "npm run build",
+      "dependsOn": ["Install Dependencies"],
+      "dependsOrder": "sequence",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true,
+        "close": true
+      }
+    },
+    {
       "label": "Start Vite Preview Server",
       "type": "shell",
       "command": "npm run preview",

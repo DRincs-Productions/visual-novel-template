@@ -4,12 +4,12 @@ import { useSelector } from "@tanstack/react-store";
 import { useEffect, useMemo, useRef } from "react";
 
 function pauseGameFromMenuOpen() {
-    sound.pauseUnsavedAll();
+    sound.unsaved.pauseAll();
     canvas.pause();
 }
 
 function resumeGameFromMenuClose() {
-    sound.resumeUnsavedAll();
+    sound.unsaved.resumeAll();
     canvas.resume();
 }
 

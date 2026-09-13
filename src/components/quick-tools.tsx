@@ -17,7 +17,7 @@ import { GameStatus } from "@/lib/stores/game-status-store";
 import { SkipSettings } from "@/lib/stores/skip-settings-store";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
 import { cn } from "@/lib/utils";
-import { getSaveSlotLabel, loadSave, quickSaveGameToIndexDB } from "@/lib/utils/save-utility";
+import { quickSave, save } from "@/lib/utils/save-utility";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSelector } from "@tanstack/react-store";
 import { useTranslation } from "react-i18next";
@@ -112,7 +112,7 @@ export function QuickTools() {
                 size="xs"
                 className="h-5 px-1 text-[10px] sm:h-6 sm:px-2 sm:text-xs"
                 onClick={() => {
-                    const savePromise = quickSaveGameToIndexDB().then((save) => {
+                    const savePromise = quickSave().then((save) => {
                         queryClient.setQueryData([SAVES_USE_QUERY_KEY, save.id], save);
                         queryClient.setQueryData([LAST_SAVE_USE_QUERY_KEY], save);
                     });
@@ -134,10 +134,11 @@ export function QuickTools() {
                     openAlertDialog({
                         head: t("load"),
                         content: t("you_sure_to_load_save", {
-                            name: lastSave.name || getSaveSlotLabel(lastSave.id, t),
+                            name: lastSave.name || save.getSlotLabel(lastSave.id, t),
                         }),
                         onConfirm: () =>
-                            loadSave(lastSave)
+                            save
+                                .restore(lastSave)
                                 .then(() => {
                                     gameProps.invalidateInterfaceData();
                                     toast.success(t("success_load"));

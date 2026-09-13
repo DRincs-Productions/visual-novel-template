@@ -3,9 +3,17 @@ import { Button } from "@/components/ui/button";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Separator } from "@/components/ui/separator";
 import { useSetSearchParamState } from "@/lib/hooks/navigation-hooks";
+import { useQuit } from "@/lib/hooks/quit-hooks";
 import { Game } from "@drincs/pixi-vn";
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import { Gamepad2Icon, HistoryIcon, LogOutIcon, SaveIcon, StethoscopeIcon } from "lucide-react";
+import {
+    Gamepad2Icon,
+    HistoryIcon,
+    LogOutIcon,
+    PowerIcon,
+    SaveIcon,
+    StethoscopeIcon,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 export function QuickMenus() {
@@ -22,6 +30,7 @@ export function QuickMenus() {
             </div>
             {isInGame && <Separator />}
             {isInGame && <ReturnMainMenuButton />}
+            <QuitButton />
         </div>
     );
 }
@@ -121,6 +130,20 @@ export function OpenHistorySettingButton() {
                 <Kbd>Ctrl</Kbd>
                 <Kbd>H</Kbd>
             </KbdGroup>
+        </Button>
+    );
+}
+
+export function QuitButton() {
+    const { t } = useTranslation(["ui"]);
+    const { quit, canQuit } = useQuit();
+
+    if (!canQuit) return null;
+
+    return (
+        <Button variant="destructive" onClick={quit}>
+            <PowerIcon />
+            {t("quit")}
         </Button>
     );
 }

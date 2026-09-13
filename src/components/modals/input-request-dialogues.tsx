@@ -2,11 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { CHOICE_INPUT_REVEAL_DELAY_MS } from "@/constants";
-import { useGameProps } from "@/lib/hooks/props-hooks";
+import { useNarrationFunctions } from "@/lib/hooks/narration-hooks";
 import { useQueryDialogue, useQueryInputValue } from "@/lib/query/narration-query";
 import { GameStatus } from "@/lib/stores/game-status-store";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
-import { narration } from "@drincs/pixi-vn";
 import { useDebouncedValue } from "@tanstack/react-pacer";
 import { useSelector } from "@tanstack/react-store";
 import { useCallback, useEffect, useState } from "react";
@@ -28,7 +27,7 @@ export function InputRequestDialog() {
     });
     const open = readyToShow && sustainedReady;
     const [tempValue, setTempValue] = useState<string | number>();
-    const gameProps = useGameProps();
+    const { submitInputValue: submitNarrationInputValue } = useNarrationFunctions();
     const { t } = useTranslation(["ui"]);
 
     useEffect(() => {
@@ -41,10 +40,9 @@ export function InputRequestDialog() {
         if (!canConfirm) {
             return;
         }
-        narration.inputValue = tempValue || currentValue;
+        submitNarrationInputValue(tempValue || currentValue);
         setTempValue(undefined);
-        gameProps.invalidateInterfaceData();
-    }, [canConfirm, currentValue, gameProps, tempValue]);
+    }, [canConfirm, currentValue, submitNarrationInputValue, tempValue]);
 
     return (
         <Dialog open={open}>

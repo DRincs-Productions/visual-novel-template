@@ -153,12 +153,9 @@ export function FullScreenSettings() {
                 className="shrink-0"
                 onClick={() => {
                     setLoading(true);
-                    let promise: Promise<void>;
-                    if (isFullScreenMode) {
-                        promise = document.exitFullscreen();
-                    } else {
-                        promise = document.documentElement.requestFullscreen();
-                    }
+                    const promise = isFullScreenMode
+                        ? document.exitFullscreen()
+                        : document.documentElement.requestFullscreen();
                     promise.finally(() => {
                         setLoading(false);
                         queryClient.invalidateQueries({

@@ -1,17 +1,20 @@
+import { getSystemInfo, type NativeDiagnostics } from "@/lib/system-info";
 import {
-    type DeviceDiagnosticsSnapshot,
     detectBrowserEngine,
     detectPlatform,
     getBrowserCapabilities,
     getCurrentFps,
+    getEngineVersion,
     getGameVersion,
     getJsMemoryInfo,
+    getMobileDiagnostics,
     getMotionVersion,
     getPixiJsVersion,
     getPixiVnVersion,
     getResolutionInfo,
     getToneJsVersion,
     getWebglDiagnostics,
+    type DeviceDiagnosticsSnapshot,
 } from "@/lib/utils/device-diagnostics-utility";
 import { useEffect, useMemo, useState } from "react";
 
@@ -26,6 +29,7 @@ export function useDeviceDiagnostics(): DeviceDiagnosticsSnapshot {
     const capabilities = useMemo(() => getBrowserCapabilities(), []);
     const platform = useMemo(() => detectPlatform(), []);
     const browserEngine = useMemo(() => detectBrowserEngine(), []);
+    const engineVersion = useMemo(() => getEngineVersion(), []);
     const gameVersion = useMemo(() => getGameVersion(), []);
     const pixiJsVersion = useMemo(() => getPixiJsVersion(), []);
     const pixiVnVersion = useMemo(() => getPixiVnVersion(), []);
@@ -33,11 +37,29 @@ export function useDeviceDiagnostics(): DeviceDiagnosticsSnapshot {
     const motionVersion = useMemo(() => getMotionVersion(), []);
 
     const [resolution, setResolution] = useState(() => getResolutionInfo());
+    const [mobile, setMobile] = useState(() => getMobileDiagnostics());
     const [memory, setMemory] = useState(() => getJsMemoryInfo());
     const [fps, setFps] = useState<number | null>(() => getCurrentFps());
+    // Only ever populated inside — stays null in the browser build.
+    const [native, setNative] = useState<NativeDiagnostics | null>(null);
 
     useEffect(() => {
-        const onResize = () => setResolution(getResolutionInfo());
+        let cancelled = false;
+        getSystemInfo().then((info) => {
+            if (cancelled || !info) return;
+            setNative(info);
+        });
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    useEffect(() => {
+        // A resize also fires on orientation changes, so refresh both together.
+        const onResize = () => {
+            setResolution(getResolutionInfo());
+            setMobile(getMobileDiagnostics());
+        };
         window.addEventListener("resize", onResize);
         return () => window.removeEventListener("resize", onResize);
     }, []);
@@ -53,12 +75,15 @@ export function useDeviceDiagnostics(): DeviceDiagnosticsSnapshot {
     return {
         webgl,
         capabilities,
+        mobile,
+        native,
         resolution,
         memory,
         fps,
         userAgent: navigator.userAgent,
         platform,
         browserEngine,
+        engineVersion,
         gameVersion,
         pixiJsVersion,
         pixiVnVersion,
