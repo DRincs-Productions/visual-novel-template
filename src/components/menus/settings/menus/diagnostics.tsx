@@ -128,6 +128,25 @@ export function DiagnosticsSettingsPage() {
                     />
                 </DiagnosticsSection>
 
+                <DiagnosticsSection title={t("diagnostics_section_build")}>
+                    {diagnostics.isRovesRuntime && (
+                        <>
+                            <DiagnosticRow
+                                label={t("diagnostics_roves_version")}
+                                value={diagnostics.rovesVersion}
+                            />
+                            <DiagnosticRow
+                                label={t("diagnostics_roves_api_version")}
+                                value={diagnostics.rovesApiVersion}
+                            />
+                        </>
+                    )}
+                    <DiagnosticRow
+                        label={t("diagnostics_vite_version")}
+                        value={diagnostics.viteVersion}
+                    />
+                </DiagnosticsSection>
+
                 <DiagnosticsSection title={t("diagnostics_section_device")}>
                     <DiagnosticRow label={t("diagnostics_platform")} value={diagnostics.platform} />
                     <DiagnosticRow

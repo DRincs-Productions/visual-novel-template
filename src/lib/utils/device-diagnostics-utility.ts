@@ -1,6 +1,9 @@
 import packageJson from "@/../package.json";
 import type { NativeDiagnostics } from "@/lib/system-info";
 import { canvas, PIXIVN_VERSION } from "@drincs/pixi-vn";
+import { isAvailable as isRovesAvailable } from "@drincs/roves-api/core";
+import rovesApiPackageJson from "@drincs/roves-api/package.json";
+import { COMPATIBLE_SHELL_VERSION } from "@drincs/roves-api/version";
 import motionPackageJson from "motion/package.json";
 import { VERSION as PIXIJS_VERSION } from "pixi.js";
 import tonePackageJson from "tone/package.json";
@@ -388,6 +391,24 @@ export function getMotionVersion(): string {
     return motionPackageJson.version;
 }
 
+/** Whether the app is actually running inside Roves right now (not just built with the API available). */
+export function isRovesRuntime(): boolean {
+    return isRovesAvailable();
+}
+
+/** Roves (the native shell) version this build targets — a compatibility marker, not a live query against the running shell (see `@drincs/roves-api/version`). */
+export function getRovesVersion(): string {
+    return COMPATIBLE_SHELL_VERSION;
+}
+
+export function getRovesApiVersion(): string {
+    return rovesApiPackageJson.version;
+}
+
+export function getViteVersion(): string {
+    return __VITE_VERSION__;
+}
+
 function formatBytes(bytes: number): string {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
@@ -409,6 +430,10 @@ export interface DeviceDiagnosticsSnapshot {
     pixiVnVersion: string;
     toneJsVersion: string;
     motionVersion: string;
+    isRovesRuntime: boolean;
+    rovesVersion: string;
+    rovesApiVersion: string;
+    viteVersion: string;
 }
 
 export function buildDiagnosticsReportText(snapshot: DeviceDiagnosticsSnapshot): string {
@@ -426,6 +451,15 @@ export function buildDiagnosticsReportText(snapshot: DeviceDiagnosticsSnapshot):
         `Platform: ${snapshot.platform}`,
         `Browser/WebView: ${snapshot.browserEngine}`,
         `Engine version: ${snapshot.engineVersion ?? "Unknown"}`,
+        "",
+        "-- Build --",
+        ...(snapshot.isRovesRuntime
+            ? [
+                  `Roves version: ${snapshot.rovesVersion}`,
+                  `Roves API version: ${snapshot.rovesApiVersion}`,
+              ]
+            : []),
+        `Vite version: ${snapshot.viteVersion}`,
         "",
         "-- Native / OS --",
         native
