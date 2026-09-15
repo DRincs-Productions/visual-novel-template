@@ -3,7 +3,6 @@ import { roves } from "@/lib/utils/roves-utility";
 import type GameSaveData from "@/models/GameSaveData";
 import { canvas, Game } from "@drincs/pixi-vn";
 import { isAvailable as isRoves } from "@drincs/roves-api/core";
-import { saves as rovesSaves } from "@drincs/roves-api/saves";
 
 const SAVE_FILE_EXTENSION = "json";
 
@@ -33,7 +32,7 @@ export async function save(
     };
     const usingRoves = isRoves();
     if (usingRoves) {
-        await rovesSaves.writeText(item.id, item);
+        await roves.writeSave(item.id, item);
         return item as GameSaveData & { id: number };
     }
 
@@ -78,7 +77,7 @@ export namespace save {
     /** Deletes the save at `id`. */
     export async function remove(id: number): Promise<unknown> {
         if (isRoves()) {
-            return await rovesSaves.delete(id);
+            return await roves.deleteSave(id);
         }
         return await gameDB.deleteRow(INDEXED_DB_SAVE_TABLE, id);
     }
@@ -142,7 +141,11 @@ export namespace save {
 /**
  * Quick saves live in a fixed, reserved range of negative ids (`-2`, `-3`, ...) so they never
  * collide with the auto-incrementing ids used by manual saves (`0`, `1`, ...) or with the `-1`
- * id reserved for the auto-exit save (see {@link autoExit}).
+ * id reserved for the auto-exit save (see {@link autoExit}). Only IndexedDB ever sees these
+ * raw negative ids directly -- the roves-backed file storage maps them to a
+ * `quicksave-<N>.save` file name instead of a bare `-2.save`/`-3.save` (see
+ * `roves-utility.ts`'s `toRovesKey`), so this id scheme's own internals stay simple without
+ * leaking an ugly file name to anyone browsing the saves folder.
  */
 export async function quickSave(): Promise<GameSaveData & { id: number }> {
     const ids = quickSave.getIds();
