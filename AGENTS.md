@@ -6,7 +6,6 @@ This repository is a template for a visual novel built with **Pixi’VN** and **
 
 - [Pixi’VN documentation](https://pixi-vn.com/)
 - [Pixi’VN ink documentation](https://pixi-vn.com/ink/) & [Native Ink documentation](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md)
-- [Roves documentation](https://roves.pixi-vn.com/)
 
 Consult the official Pixi’VN documentation when implementing or changing engine features.
 
@@ -74,3 +73,17 @@ Skills are reference tools, not required repository dependencies; their availabi
 ## Distribution
 
 The game is intended to be distributed through **Roves**. See the [Roves documentation](https://roves.pixi-vn.com/) for up-to-date instructions on preparing and publishing the project.
+
+Releases are built by `.github/workflows/release.yml` (desktop, desktop + Steam, and mobile). To generate a release, create and push a tag matching `v*` (for example `git tag v1.0.0 && git push origin v1.0.0`). The workflow builds the game and attaches the bundles to the GitHub release with that tag.
+
+If an AI agent creates and pushes the tag, once it is pushed it must send the developer, in the chat, the link to the workflow run and to the release (for example `https://github.com/<owner>/<repo>/actions` and `https://github.com/<owner>/<repo>/releases/tag/<tag>`, with the real owner, repository and tag; `gh run list` and `gh release view <tag> --json url` can help find them), so the developer can reach the release without searching for it.
+
+### Signing for a real release
+
+The packages produced by `release.yml` are **not signed**: Android is a debug `.apk`, iOS is an Xcode project plus an unsigned Simulator app (not installable on a device), and desktop installers carry no code-signing certificate. They are fine for testing, but before a real release to players the packages must be properly signed.
+
+- **Android**: generate a release keystore (`keytool -genkeypair -v -keystore release.keystore -alias <alias> -keyalg RSA -keysize 2048 -validity 10000`) and keep it safe, since losing it prevents updating the app. Store `base64 -w0 release.keystore` and the passwords as GitHub secrets, then in the `android` job of `release.yml` add to the Roves step `android-release: 'true'`, `android-keystore-base64`, `android-keystore-password`, `android-key-alias`, and `android-key-password` (read from `${{ secrets.* }}`). The result is a signed release `.apk`.
+- **iOS**: requires an enrolled Apple Developer Program account. Export an Apple Distribution certificate as `.p12`, download the `.mobileprovision` that matches the certificate and the app bundle ID, and store their base64 (`base64 -w0 <file>`), the `.p12` password, and the Team ID as GitHub secrets. In the `ios` job add `ios-release: 'true'`, `ios-certificate-p12-base64`, `ios-certificate-p12-password`, `ios-provisioning-profile-base64`, `ios-team-id`, and set `ios-bundle-id` and `ios-app-name`. The result is a signed `.ipa`.
+- **Desktop (Windows/macOS)**: `roves-action` does not sign them. Sign the files afterwards with your own certificates (Windows code-signing certificate; Apple Developer ID plus notarization for macOS), or accept the OS security warnings.
+
+Never commit keystores, certificates, passwords, or provisioning profiles: use GitHub secrets only. See the `roves-action` inputs in the [Roves documentation](https://roves.pixi-vn.com/docs/action) for the up-to-date list.
