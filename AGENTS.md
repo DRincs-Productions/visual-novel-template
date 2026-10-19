@@ -5,6 +5,7 @@ This repository is a template for a visual novel built with **Pixi’VN** and **
 ## Engine
 
 - [Pixi’VN documentation](https://pixi-vn.com/)
+- [Pixi’VN ink documentation](https://pixi-vn.com/ink/) & [Native Ink documentation](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md)
 - [Roves documentation](https://roves.pixi-vn.com/)
 
 Consult the official Pixi’VN documentation when implementing or changing engine features.
