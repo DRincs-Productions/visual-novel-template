@@ -1,5 +1,4 @@
 import packageJson from "@/../package.json";
-import type { NativeDiagnostics } from "@/lib/system-info";
 import { canvas, PIXIVN_VERSION } from "@drincs/pixi-vn";
 import motionPackageJson from "motion/package.json";
 import { VERSION as PIXIJS_VERSION } from "pixi.js";
@@ -451,7 +450,7 @@ export function buildDiagnosticsReportText(snapshot: DeviceDiagnosticsSnapshot):
         native
             ? [
                   `OS: ${native.osType} ${native.osVersion} (${native.bitness}, ${native.architecture})`,
-                  `Engine version: ${native.engineVersion}`,
+                  `Engine version: ${native.webviewVersion ?? "Unknown"}`,
               ].join("\n")
             : "Not available (running in a standard browser)",
         "",

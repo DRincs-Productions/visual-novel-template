@@ -1,4 +1,5 @@
-import { systemInfo, type NativeDiagnostics } from "@/lib/system-info";
+import { getSystemInfo, getWebviewVersion } from "@/lib/system-info";
+import type { NativeDiagnostics } from "@/lib/utils/device-diagnostics-utility";
 import {
     detectBrowserEngine,
     detectPlatform,
@@ -47,12 +48,10 @@ export function useDeviceDiagnostics(): DeviceDiagnosticsSnapshot {
 
     useEffect(() => {
         let cancelled = false;
-        Promise.all([systemInfo.getSystemInfo(), systemInfo.getWebviewVersion()]).then(
-            ([info, webviewVersion]) => {
-                if (cancelled || !info) return;
-                setNative({ ...info, webviewVersion });
-            },
-        );
+        Promise.all([getSystemInfo(), getWebviewVersion()]).then(([info, webviewVersion]) => {
+            if (cancelled || !info) return;
+            setNative({ ...info, webviewVersion });
+        });
         return () => {
             cancelled = true;
         };
