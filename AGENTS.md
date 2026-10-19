@@ -89,3 +89,64 @@ The packages produced by these workflows are **not signed**: Android is a debug 
 - **iOS**: requires an enrolled Apple Developer Program account. Export the Apple Distribution certificate as `.p12`, download the matching provisioning profile, store them (base64) with the password and Team ID as secrets, remove the "disable code signing" step from the `build-ios` job, and build without `--debug`.
 - **Windows**: use a code-signing certificate configured through the `bundle > windows` options of `src-tauri/tauri.conf.json`.
 - **macOS**: use an Apple Developer ID certificate plus notarization (`APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`, `APPLE_ID`, `APPLE_PASSWORD`, `APPLE_TEAM_ID` passed as environment variables to `tauri-action`).
+
+### Steam (Tauri + Steamworks)
+
+> Temporary section: this Steam documentation is tied to Tauri and will probably be removed once the Roves documentation covers it. In game code, prefer the platform-agnostic `achievements` API of `@drincs/roves-api/achievements` for achievements.
+
+> **Mobile:** Steam is not supported on iOS or Android; the feature is disabled automatically on those targets.
+
+The multiplatform template includes a **ready-to-use Steam integration** built on [Tauri](https://tauri.app/) and the Rust crate [`steamworks`](https://crates.io/crates/steamworks) (a wrapper around the Steamworks SDK). Everything is opt-in: the feature is excluded from the build by default and adds zero overhead when unused.
+
+#### Enabling Steam support
+
+Edit `steam_appid.txt` in the repo root and replace the value with your real Steam App ID.  
+Use `480` (Spacewar) for local testing without a published app.
+
+`steam_appid.txt`:
+
+```txt
+480
+```
+
+Open `src-tauri/Cargo.toml` and add `steam` to the default features list:
+
+`src-tauri/Cargo.toml`:
+
+```toml
+default = ["steam"]
+```
+
+Alternatively, pass `--features steam` to any `cargo` or `tauri build` command without touching the file.
+
+The `steamworks` Rust crate already ships the native redistributable libraries for all platforms — **nothing to download manually**. The `build.rs` in this template copies the correct file into `src-tauri/` automatically during compilation.
+
+##### Bundling for distribution
+
+To include the library in the final installer you need to tell Tauri to bundle it. Create a platform-specific config file for the platform you are targeting — you only need the one(s) that apply to you:
+
+`src-tauri/tauri.windows.conf.json`:
+
+```json
+{
+    "bundle": { "resources": ["steam_api64.dll"] }
+}
+```
+
+`src-tauri/tauri.macos.conf.json`:
+
+```json
+{
+    "bundle": { "resources": ["libsteam_api.dylib"] }
+}
+```
+
+`src-tauri/tauri.linux.conf.json`:
+
+```json
+{
+    "bundle": { "resources": ["libsteam_api.so"] }
+}
+```
+
+Tauri v2 merges the matching file into `tauri.conf.json` automatically at build time. Create only the files for the platforms you want to distribute on — one, two, or all three.
