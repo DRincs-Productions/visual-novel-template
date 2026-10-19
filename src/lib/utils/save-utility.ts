@@ -1,8 +1,6 @@
 import { gameDB, INDEXED_DB_SAVE_TABLE } from "@/lib/utils/db-utility";
-import { roves } from "@/lib/utils/roves-utility";
 import type GameSaveData from "@/models/GameSaveData";
 import { canvas, Game } from "@drincs/pixi-vn";
-import { isAvailable as isRoves } from "@drincs/roves-api/core";
 
 const SAVE_FILE_EXTENSION = "json";
 
@@ -18,7 +16,7 @@ async function create(options?: { image?: string; name?: string }): Promise<Game
     };
 }
 
-/** Persists a save under `info.id`, to whichever backend (Roves or IndexedDB) is active. */
+/** Persists a save under `info.id`, to IndexedDB. */
 export async function save(
     info: Partial<GameSaveData> & { id: number },
     data?: GameSaveData,
@@ -30,12 +28,6 @@ export async function save(
         image: image,
         ...rest,
     };
-    const usingRoves = isRoves();
-    if (usingRoves) {
-        await roves.writeSave(item.id, item);
-        return item as GameSaveData & { id: number };
-    }
-
     await gameDB.putRow(INDEXED_DB_SAVE_TABLE, item);
     if (item.id) {
         return item as GameSaveData & { id: number };
@@ -46,22 +38,18 @@ export async function save(
 export namespace save {
     /** Reads the save at `id`, or `null` if there isn't one. */
     export async function get(id: number): Promise<(GameSaveData & { id: number }) | null> {
-        if (isRoves()) {
-            return roves.getSave(id);
-        }
         return await gameDB.getRow(INDEXED_DB_SAVE_TABLE, id);
     }
 
     /** The most recent save overall, including the auto-exit save if it's newer (see {@link autoExit}). */
     export async function getLast(): Promise<(GameSaveData & { id: number }) | null> {
-        const backendSave = isRoves()
-            ? await roves.getMostRecentSave()
-            : ((
-                  await gameDB.getList<GameSaveData & { id: number }>(INDEXED_DB_SAVE_TABLE, {
-                      pagination: { limit: 1, offset: 0 },
-                      order: { field: "date", direction: "prev" },
-                  })
-              )[0] ?? null);
+        const backendSave =
+            (
+                await gameDB.getList<GameSaveData & { id: number }>(INDEXED_DB_SAVE_TABLE, {
+                    pagination: { limit: 1, offset: 0 },
+                    order: { field: "date", direction: "prev" },
+                })
+            )[0] ?? null;
 
         const autoExitSave = autoExit.peek();
         if (
@@ -76,9 +64,6 @@ export namespace save {
 
     /** Deletes the save at `id`. */
     export async function remove(id: number): Promise<unknown> {
-        if (isRoves()) {
-            return await roves.deleteSave(id);
-        }
         return await gameDB.deleteRow(INDEXED_DB_SAVE_TABLE, id);
     }
 
@@ -141,11 +126,7 @@ export namespace save {
 /**
  * Quick saves live in a fixed, reserved range of negative ids (`-2`, `-3`, ...) so they never
  * collide with the auto-incrementing ids used by manual saves (`0`, `1`, ...) or with the `-1`
- * id reserved for the auto-exit save (see {@link autoExit}). Only IndexedDB ever sees these
- * raw negative ids directly -- the roves-backed file storage maps them to a
- * `quicksave-<N>.save` file name instead of a bare `-2.save`/`-3.save` (see
- * `roves-utility.ts`'s `toRovesKey`), so this id scheme's own internals stay simple without
- * leaking an ugly file name to anyone browsing the saves folder.
+ * id reserved for the auto-exit save (see {@link autoExit}).
  */
 export async function quickSave(): Promise<GameSaveData & { id: number }> {
     const ids = quickSave.getIds();

@@ -32,7 +32,7 @@ In this project, for example, the Pixi’VN plugin in `vite.config.ts` generates
 
 ## VS Code
 
-The `.vscode/` directory contains formatting settings, recommended extensions, tasks, and debug configurations. Tasks may install dependencies and start the Vite server when the folder is opened in VS Code. Tasks are also configured for starting and stopping the server, building, local preview, and debugging the game, including with Roves. Check `tasks.json`, `launch.json`, `settings.json`, and `extensions.json` before changing these workflows or starting duplicate processes.
+The `.vscode/` directory contains formatting settings, recommended extensions, tasks, and debug configurations. Tasks may install dependencies and start the Vite server when the folder is opened in VS Code. Tasks are also configured for starting and stopping the server, building, local preview, and debugging the game. Check `tasks.json`, `launch.json`, `settings.json`, and `extensions.json` before changing these workflows or starting duplicate processes.
 
 ## Working conventions
 
@@ -58,4 +58,4 @@ Skills are reference tools, not required repository dependencies; their availabi
 
 ## Distribution
 
-The game is intended to be distributed through **Roves**. See the [Roves documentation](https://roves.pixi-vn.com/) for up-to-date instructions on preparing and publishing the project.
+The game is a **Tauri**-only desktop/mobile app (see `src-tauri/`). See the [Tauri documentation](https://tauri.app/) for instructions on building and publishing the project.

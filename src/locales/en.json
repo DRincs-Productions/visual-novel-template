@@ -85,8 +85,6 @@
     "diagnostics_pixivn_version": "Pixi'VN version",
     "diagnostics_tonejs_version": "Tone.js version",
     "diagnostics_motion_version": "Motion version",
-    "diagnostics_roves_version": "Roves version",
-    "diagnostics_roves_api_version": "Roves API version",
     "diagnostics_vite_version": "Vite version",
     "diagnostics_platform": "Platform",
     "diagnostics_browser_engine": "Browser/WebView",
