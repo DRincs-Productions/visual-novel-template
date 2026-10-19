@@ -1,7 +1,5 @@
-import { systemInfo } from "@/lib/system-info";
+import { systemInfo, type NativeDiagnostics } from "@/lib/system-info";
 import {
-    type DeviceDiagnosticsSnapshot,
-    type NativeDiagnostics,
     detectBrowserEngine,
     detectPlatform,
     getBrowserCapabilities,
@@ -14,8 +12,13 @@ import {
     getPixiJsVersion,
     getPixiVnVersion,
     getResolutionInfo,
+    getRovesApiVersion,
+    getRovesVersion,
     getToneJsVersion,
+    getViteVersion,
     getWebglDiagnostics,
+    isRovesRuntime,
+    type DeviceDiagnosticsSnapshot,
 } from "@/lib/utils/device-diagnostics-utility";
 import { useEffect, useMemo, useState } from "react";
 
@@ -36,6 +39,10 @@ export function useDeviceDiagnostics(): DeviceDiagnosticsSnapshot {
     const pixiVnVersion = useMemo(() => getPixiVnVersion(), []);
     const toneJsVersion = useMemo(() => getToneJsVersion(), []);
     const motionVersion = useMemo(() => getMotionVersion(), []);
+    const isRoves = useMemo(() => isRovesRuntime(), []);
+    const rovesVersion = useMemo(() => getRovesVersion(), []);
+    const rovesApiVersion = useMemo(() => getRovesApiVersion(), []);
+    const viteVersion = useMemo(() => getViteVersion(), []);
 
     const [resolution, setResolution] = useState(() => getResolutionInfo());
     const [mobile, setMobile] = useState(() => getMobileDiagnostics());
@@ -92,5 +99,9 @@ export function useDeviceDiagnostics(): DeviceDiagnosticsSnapshot {
         pixiVnVersion,
         toneJsVersion,
         motionVersion,
+        isRovesRuntime: isRoves,
+        rovesVersion,
+        rovesApiVersion,
+        viteVersion,
     };
 }

@@ -26,11 +26,11 @@ Game.init(body, {
     resizeMode: "contain",
 }).then(() => {
     // Pixi.JS UI Layer
-    canvas.addLayer(CANVAS_UI_LAYER_NAME, new Container());
+    canvas.layers.add(CANVAS_UI_LAYER_NAME, new Container());
 
     // Sound setup
-    sound.addChannel(BGM_CHANNEL_NAME, { background: true });
-    sound.addChannel(SFX_CHANNEL_NAME);
+    sound.channels.add(BGM_CHANNEL_NAME, { background: true });
+    sound.channels.add(SFX_CHANNEL_NAME);
     sound.defaultChannelAlias = SFX_CHANNEL_NAME;
     MasterSound.init();
     ChannelSound.init();
@@ -41,7 +41,7 @@ Game.init(body, {
         throw new Error("root element not found");
     }
 
-    const htmlLayout = canvas.addHtmlLayer(HTML_UI_LAYER_NAME, root);
+    const htmlLayout = canvas.htmlLayers.add(HTML_UI_LAYER_NAME, root);
     if (!htmlLayout) {
         throw new Error("htmlLayout not found");
     }

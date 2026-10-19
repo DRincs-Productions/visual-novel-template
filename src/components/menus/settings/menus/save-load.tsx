@@ -2,7 +2,7 @@ import { GameSaveMenu } from "@/components/menus/save-menu";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useGameProps } from "@/lib/hooks/props-hooks";
-import { downloadGameSave, loadGameSaveFromFile } from "@/lib/utils/save-utility";
+import { save } from "@/lib/utils/save-utility";
 import type { FileRouteTypes } from "@/routeTree.gen";
 import { useLocation } from "@tanstack/react-router";
 import { Download, FolderOpen, Zap } from "lucide-react";
@@ -39,7 +39,7 @@ export function SaveLoadSettingsPage() {
                             variant="ghost"
                             size="icon-lg"
                             onClick={() =>
-                                loadGameSaveFromFile((err) => {
+                                save.loadFromFile((err) => {
                                     if (err) {
                                         toast.error(t("allert_error_occurred"));
                                         return;
@@ -60,7 +60,7 @@ export function SaveLoadSettingsPage() {
                         <Button
                             variant="ghost"
                             size="icon-lg"
-                            onClick={() => downloadGameSave()}
+                            onClick={() => save.download()}
                             disabled={(location.pathname as FileRouteTypes["fullPaths"]) === "/"}
                             aria-label={t("save_to_file")}
                         >

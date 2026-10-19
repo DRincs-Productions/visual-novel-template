@@ -8,6 +8,7 @@ import react from "@vitejs/plugin-react";
 import { defineConfig, type Plugin, type ResolvedConfig } from "vite";
 import { checker } from "vite-plugin-checker";
 import { VitePWA } from "vite-plugin-pwa";
+import vitePackageJson from "vite/package.json";
 import assetPackConfig from "./.assetpack.ts";
 
 /**
@@ -35,6 +36,7 @@ export default defineConfig(({ mode }) => ({
         react(),
         tailwindcss(),
         vitePluginPixivn({
+            workerFilePath: "./src/pixi-vn.worker.gen.ts",
             content: "./src/content/index.ts",
             characters: "./src/content/characters.ts",
             labels: "./src/content/labels/*.label.ts",
@@ -104,7 +106,7 @@ export default defineConfig(({ mode }) => ({
     define: {
         __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
         __APP_NAME__: JSON.stringify(process.env.npm_package_name),
-        __EMBEDDED_TARGET__: JSON.stringify(process.env.EMBEDDED_TARGET ?? ""),
+        __VITE_VERSION__: JSON.stringify(vitePackageJson.version),
     },
     build: {
         rollupOptions: {

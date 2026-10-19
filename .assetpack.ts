@@ -3,7 +3,7 @@ import { path } from "@assetpack/core";
 import { pixiPipes } from "@assetpack/core/pixi";
 import fs from "node:fs/promises";
 
-const isNativeBuild = !!process.env.TAURI_ENV_TARGET_TRIPLE || !!process.env.EMBEDDED_TARGET;
+const isNativeBuild = !!process.env.TAURI_ENV_TARGET_TRIPLE;
 
 const manifestOutput = "src/assets/manifest.gen.json";
 

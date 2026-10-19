@@ -2,4 +2,4 @@
 
 declare const __APP_VERSION__: string;
 declare const __APP_NAME__: string;
-declare const __EMBEDDED_TARGET__: string;
+declare const __VITE_VERSION__: string;

@@ -13,7 +13,7 @@ export namespace ChannelSound {
      * Initialize the channel sound storage, syncing the sound library with stored values
      */
     export function init() {
-        sound.channels.forEach((c) => {
+        sound.channels.values.forEach((c) => {
             const store = getStore(c.alias);
             const muted = store.state.muted;
             setVolume(c.alias, store.state.volume);
@@ -29,9 +29,9 @@ export namespace ChannelSound {
         const storedMuted = localStorage.getItem(`${alias}_muted`);
         store = new Store<ChannelSoundState>({
             volume: Number(
-                localStorage.getItem(`${alias}_volume`) ?? sound.findChannel(alias).volume * 100,
+                localStorage.getItem(`${alias}_volume`) ?? sound.channels.find(alias).volume * 100,
             ),
-            muted: storedMuted !== null ? storedMuted === "true" : sound.findChannel(alias).muted,
+            muted: storedMuted !== null ? storedMuted === "true" : sound.channels.find(alias).muted,
         });
         storeCache.set(alias, store);
         return store;
@@ -42,7 +42,7 @@ export namespace ChannelSound {
         if (store.state.muted) {
             setMuted(alias, false);
         }
-        sound.findChannel(alias).volume = volume / 100;
+        sound.channels.find(alias).volume = volume / 100;
         localStorage.setItem(`${alias}_volume`, volume.toString());
         store.setState((state) => ({ ...state, volume: Math.round(volume) }));
 
@@ -52,13 +52,13 @@ export namespace ChannelSound {
     }
 
     export function setMuted(alias: string, muted: boolean) {
-        sound.findChannel(alias).muted = muted;
+        sound.channels.find(alias).muted = muted;
         localStorage.setItem(`${alias}_muted`, muted.toString());
         getStore(alias).setState((state) => ({ ...state, muted }));
     }
 
     export function toggleMuted(alias: string) {
-        const curr = sound.findChannel(alias).toggleMuteAll();
+        const curr = sound.channels.find(alias).toggleMuteAll();
         setMuted(alias, curr);
     }
 }

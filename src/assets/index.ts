@@ -2,7 +2,6 @@ import generatedManifestJson from "@/assets/manifest.gen.json";
 import { AUDIO_BUNDLE_NAME } from "@/constants";
 import { secondPart } from "@/content/labels/second.label";
 import { startLabel } from "@/content/labels/start.label";
-import type { FileRouteTypes } from "@/routeTree.gen";
 import type { AssetsManifest } from "@drincs/pixi-vn";
 
 /**
@@ -22,16 +21,6 @@ export const manifest: AssetsManifest = {
                 {
                     alias: "sfx_whoosh",
                     src: "https://pub-72ff059a2c6642fb9eab15df80fb3b45.r2.dev/audio/sfx_whoosh.wav",
-                },
-            ],
-        },
-        // screens
-        {
-            name: "/" as FileRouteTypes["fullPaths"],
-            assets: [
-                {
-                    alias: "background_main_menu",
-                    src: "https://pub-72ff059a2c6642fb9eab15df80fb3b45.r2.dev/main-menu.png",
                 },
             ],
         },

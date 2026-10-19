@@ -51,7 +51,9 @@ const steamViaTauri: SteamApi = {
     },
 
     async isAchievementUnlocked(achievementId) {
-        return invoke<boolean>("steam_is_achievement_unlocked", { achievementId }).catch(() => false);
+        return invoke<boolean>("steam_is_achievement_unlocked", { achievementId }).catch(
+            () => false,
+        );
     },
 
     async clearAchievement(achievementId) {

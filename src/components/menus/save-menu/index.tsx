@@ -10,13 +10,13 @@ import {
 } from "@/components/ui/pagination";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SaveMenuPagination } from "@/lib/stores/save-menu-pagination-store";
-import { getQuickSaveIds } from "@/lib/utils/save-utility";
+import { quickSave } from "@/lib/utils/save-utility";
 import { useSelector } from "@tanstack/react-store";
 
 const TOTAL_PAGES = 10;
 /** Number of save slots shown per page. */
 const SAVES_PER_PAGE = 6;
-const QUICK_SAVE_IDS = getQuickSaveIds();
+const QUICK_SAVE_IDS = quickSave.getIds();
 
 /** Number of consecutive page numbers shown around the current page on desktop. */
 const DESKTOP_WINDOW_SIZE = 4;
