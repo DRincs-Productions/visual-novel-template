@@ -5,6 +5,7 @@ This repository is a template for a visual novel built with **Pixi’VN** and **
 ## Engine
 
 - [Pixi’VN documentation](https://pixi-vn.com/)
+- [Roves documentation](https://roves.pixi-vn.com/)
 
 Consult the official Pixi’VN documentation when implementing or changing engine features.
 
@@ -48,6 +49,13 @@ The `.vscode/` directory contains formatting settings, recommended extensions, t
 - Update the documentation in `docs/` when narrative or design information relevant to the team changes. Do not use it as an asset inventory.
 - Before adding a library, check whether the project or Pixi’VN already provides the required functionality.
 
+## UI
+
+- Every screen is a **TanStack Router** route in `src/routes/`.
+- For UI made of elements that are not drawings coming from media (text, buttons, layouts, menus, dialogs, forms), always use **React** (with the existing shadcn/ui components when suitable).
+- For images (assets), use **PixiJS** (`pixi.js`) directly. Do not use Pixi’VN for UI: Pixi’VN is for the narrative canvas, while UI rendering with PixiJS must go through `pixi.js` itself.
+- If `pixi.js` is used directly and is not yet a direct dependency of the project, add it to `package.json` first, before writing code that imports it.
+
 ## Verification and tools
 
 Available scripts are defined in `package.json`. This template includes commands for development, builds, linting, and formatting/type checks; review the scripts before using them and choose those relevant to the change.
@@ -57,6 +65,8 @@ When available, use the **Chrome DevTools MCP server** to run or inspect the gam
 ## Recommended skills
 
 Use the Pixi’VN skills available in the working environment when relevant. Choose the skill for the area being changed: project setup, narration, characters, canvas and transitions, assets, UI, audio, storage, saves, history, or Ink content (`pixi-vn-ink`). For work involving Ink, also follow any Ink setup instructions required by the relevant skills, and prefer Ink over TypeScript labels for narration.
+
+When using `pixi.js` directly, it may be worth installing the PixiJS skills as well (and adding `pixi.js` as a dependency beforehand, see the UI section).
 
 Skills are reference tools, not required repository dependencies; their availability varies between environments. For React, TanStack Router, Tailwind CSS, or shadcn/ui, consult dedicated documentation or skills when needed for the change; there is no need to require additional skills for the template as a whole.
 
