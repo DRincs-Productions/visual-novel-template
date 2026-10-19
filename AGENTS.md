@@ -5,7 +5,6 @@ This repository is a template for a visual novel built with **Pixi’VN** and **
 ## Engine
 
 - [Pixi’VN documentation](https://pixi-vn.com/)
-- [Tauri documentation](https://tauri.app/)
 
 Consult the official Pixi’VN documentation when implementing or changing engine features.
 
@@ -69,4 +68,17 @@ Skills are reference tools, not required repository dependencies; their availabi
 
 ## Distribution
 
-The game is a **Tauri**-only desktop/mobile app (see `src-tauri/`). See the [Tauri documentation](https://tauri.app/) for instructions on building and publishing the project.
+The game is a **Tauri**-only desktop/mobile app (see `src-tauri/`). See the [Tauri documentation](https://tauri.app/) for instructions on building and publishing the project
+
+Releases are built by `.github/workflows/desktop.yml` (Windows, macOS, Linux) and `.github/workflows/mobile.yml` (Android, iOS). Both start when a tag matching `v*` is pushed. To generate a release, create and push a tag (for example `git tag v1.0.0 && git push origin v1.0.0`); the workflows build the game with `tauri-action`/the Tauri CLI and attach the bundles to the GitHub release with that tag.
+
+If an AI agent creates and pushes the tag, once it is pushed it must send the developer, in the chat, the link to the workflow runs and to the release (for example `https://github.com/<owner>/<repo>/actions` and `https://github.com/<owner>/<repo>/releases/tag/<tag>`, with the real owner, repository and tag; `gh run list` and `gh release view <tag> --json url` can help find them), so the developer can reach the release without searching for it.
+
+### Signing for a real release
+
+The packages produced by these workflows are **not signed**: Android is a debug `.apk`, iOS is built without code signing (not installable on a device), and desktop installers carry no code-signing certificate. They are fine for testing, but before a real release to players the packages must be properly signed. Follow the Tauri guides for each platform (https://tauri.app/distribute/sign/android/, `/ios/`, `/windows/`, `/macos/`) and keep every secret in GitHub secrets, never in the repository.
+
+- **Android**: generate a release keystore (`keytool -genkeypair -v -keystore release.keystore -alias <alias> -keyalg RSA -keysize 2048 -validity 10000`) and keep it safe, since losing it prevents updating the app. Store the base64 of the keystore and its passwords as secrets, recreate the keystore and the signing configuration in the `build-android` job, and build with `tauri android build` instead of `--debug`.
+- **iOS**: requires an enrolled Apple Developer Program account. Export the Apple Distribution certificate as `.p12`, download the matching provisioning profile, store them (base64) with the password and Team ID as secrets, remove the "disable code signing" step from the `build-ios` job, and build without `--debug`.
+- **Windows**: use a code-signing certificate configured through the `bundle > windows` options of `src-tauri/tauri.conf.json`.
+- **macOS**: use an Apple Developer ID certificate plus notarization (`APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`, `APPLE_ID`, `APPLE_PASSWORD`, `APPLE_TEAM_ID` passed as environment variables to `tauri-action`).
