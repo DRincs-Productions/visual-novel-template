@@ -17,9 +17,14 @@ import { useDebouncedValue } from "@tanstack/react-pacer";
 import { Check, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import Markdown from "react-markdown";
-import rehypeRaw from "rehype-raw";
-import remarkGfm from "remark-gfm";
+import { MarkdownTypewriter } from "markdown-typewriter/react";
+import type { ReactNode } from "react";
+
+const HISTORY_MARKDOWN_COMPONENTS = {
+    p: ({ children }: { children?: ReactNode }) => (
+        <p className="m-0 text-sm text-muted-foreground">{children}</p>
+    ),
+};
 
 function HistoryItemAvatar({ icon, character }: { icon?: string; character: string }) {
     const resolvedSrc = useImageSrc(icon);
@@ -67,22 +72,13 @@ export function HistoryList({ searchString }: { searchString?: string }) {
                                 className={!item.character ? "items-center text-center" : undefined}
                             >
                                 {item.character && <ItemTitle>{item.character}</ItemTitle>}
-                                <Markdown
-                                    remarkPlugins={[remarkGfm]}
-                                    rehypePlugins={[rehypeRaw]}
-                                    components={{
-                                        p: ({ children, id }) => (
-                                            <p
-                                                key={id}
-                                                className="m-0 text-sm text-muted-foreground"
-                                            >
-                                                {children}
-                                            </p>
-                                        ),
-                                    }}
+                                <MarkdownTypewriter
+                                    allowHtml
+                                    animated={false}
+                                    components={HISTORY_MARKDOWN_COMPONENTS}
                                 >
                                     {item.text}
-                                </Markdown>
+                                </MarkdownTypewriter>
                             </ItemContent>
                             {(item.choices?.some((c) => !c.hidden) || item.inputValue) && (
                                 <ItemFooter className="flex-wrap justify-center gap-1.5">

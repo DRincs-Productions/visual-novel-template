@@ -10,9 +10,12 @@ import { useDebouncedValue } from "@tanstack/react-pacer";
 import { useSelector } from "@tanstack/react-store";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import Markdown from "react-markdown";
-import rehypeRaw from "rehype-raw";
-import remarkGfm from "remark-gfm";
+import { MarkdownTypewriter } from "markdown-typewriter/react";
+import type { ComponentProps } from "react";
+
+const INLINE_MARKDOWN_COMPONENTS = {
+    p: (props: ComponentProps<"span">) => <span {...props} />,
+};
 
 export function InputRequestDialog() {
     const { data: { lastText: text } = {} } = useQueryDialogue();
@@ -48,15 +51,13 @@ export function InputRequestDialog() {
         <Dialog open={open}>
             <DialogContent showCloseButton={false}>
                 {text && (
-                    <Markdown
-                        remarkPlugins={[remarkGfm]}
-                        rehypePlugins={[rehypeRaw]}
-                        components={{
-                            p: (props) => <span {...props} />,
-                        }}
+                    <MarkdownTypewriter
+                        allowHtml
+                        animated={false}
+                        components={INLINE_MARKDOWN_COMPONENTS}
                     >
                         {text}
-                    </Markdown>
+                    </MarkdownTypewriter>
                 )}
                 <Input
                     value={tempValue ?? ""}
