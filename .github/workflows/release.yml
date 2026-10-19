@@ -1,0 +1,210 @@
+name: 'Release (Roves)'
+
+# Builds the game with https://roves.pixi-vn.com/docs/action and attaches
+# desktop, desktop + Steam and mobile bundles to a single GitHub release.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+env:
+  TAG: ${{ github.ref_name }}
+
+jobs:
+  # ── Build the web content once and share it with every Roves job ────────────
+  build-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: install dependencies
+        run: npm i
+
+      - name: build web content
+        run: npm run build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: dist
+          if-no-files-found: error
+
+  # ── Create the release exactly once before the matrices start ───────────────
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: create release
+        run: |
+          gh release view "$TAG" 2>/dev/null || \
+          gh release create "$TAG" \
+            --title "Game $TAG" \
+            --notes "See the assets to download this version and install." \
+            2>/dev/null || \
+          gh release view "$TAG" > /dev/null
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── Desktop (portable bundle + installers) ──────────────────────────────────
+  desktop:
+    needs: [build-web, create-release]
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-latest
+            os: windows
+          - platform: macos-latest
+            os: macos
+          - platform: ubuntu-22.04
+            os: linux
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: dist
+
+      # Portable bundle
+      - name: build portable bundle
+        id: portable
+        uses: DRincs-Productions/roves-action@v1
+        with:
+          content-dir: dist
+          artifact-name: game-${{ matrix.os }}-portable
+
+      # Installer (msi / dmg / deb, only the one matching the runner is applied)
+      - name: build installer
+        id: installer
+        uses: DRincs-Productions/roves-action@v1
+        with:
+          content-dir: dist
+          artifact-name: game-${{ matrix.os }}-installer
+          msi: 'true'
+          dmg: 'true'
+          deb: 'true'
+          package-name: game
+          package-version: ${{ github.ref_name }}
+
+      - name: upload to release
+        shell: bash
+        run: |
+          gh release upload "$TAG" "${{ steps.portable.outputs.archive-path }}" --clobber
+          gh release upload "$TAG" "${{ steps.installer.outputs.archive-path }}" --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── Desktop + Steam ─────────────────────────────────────────────────────────
+  desktop-steam:
+    needs: [build-web, create-release]
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-latest
+            os: windows
+          - platform: macos-latest
+            os: macos
+          - platform: ubuntu-22.04
+            os: linux
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: dist
+
+      - name: build Steam bundle
+        id: steam
+        uses: DRincs-Productions/roves-action@v1
+        with:
+          content-dir: dist
+          artifact-name: game-${{ matrix.os }}-steam
+          features: 'steam'
+
+      - name: upload to release
+        shell: bash
+        run: gh release upload "$TAG" "${{ steps.steam.outputs.archive-path }}" --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── Mobile: Android ─────────────────────────────────────────────────────────
+  android:
+    needs: [build-web, create-release]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: dist
+
+      - name: setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: build Android bundle
+        id: android
+        uses: DRincs-Productions/roves-action@v1
+        with:
+          content-dir: dist
+          artifact-name: game-android
+          advanced-mode: 'true'
+          android: 'true'
+
+      # A bare .apk is what people actually sideload, so upload it instead of the zip
+      - name: upload to release
+        shell: bash
+        run: |
+          APK=$(find "${{ steps.android.outputs.bundle-dir }}" -iname '*.apk' | head -1)
+          if [ -z "$APK" ]; then
+            echo "::error::no .apk found in ${{ steps.android.outputs.bundle-dir }}"
+            exit 1
+          fi
+          cp "$APK" "game-android-$TAG.apk"
+          gh release upload "$TAG" "game-android-$TAG.apk" --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── Mobile: iOS (Xcode project + unsigned Simulator .app) ───────────────────
+  ios:
+    needs: [build-web, create-release]
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: dist
+
+      - name: build iOS bundle
+        id: ios
+        uses: DRincs-Productions/roves-action@v1
+        with:
+          content-dir: dist
+          artifact-name: game-ios
+          ios: 'true'
+          advanced-mode: 'true'
+
+      - name: upload to release
+        run: gh release upload "$TAG" "${{ steps.ios.outputs.archive-path }}" --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
