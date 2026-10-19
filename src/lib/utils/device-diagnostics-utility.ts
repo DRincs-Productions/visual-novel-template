@@ -399,6 +399,10 @@ export function getMotionVersion(): string {
     return motionPackageJson.version;
 }
 
+export function getViteVersion(): string {
+    return __VITE_VERSION__;
+}
+
 function formatBytes(bytes: number): string {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
@@ -420,6 +424,7 @@ export interface DeviceDiagnosticsSnapshot {
     pixiVnVersion: string;
     toneJsVersion: string;
     motionVersion: string;
+    viteVersion: string;
 }
 
 export function buildDiagnosticsReportText(snapshot: DeviceDiagnosticsSnapshot): string {
@@ -438,11 +443,14 @@ export function buildDiagnosticsReportText(snapshot: DeviceDiagnosticsSnapshot):
         `Browser/WebView: ${snapshot.browserEngine}`,
         `Engine version: ${snapshot.engineVersion ?? "Unknown"}`,
         "",
-        "-- Native / OS (Tauri only) --",
+        "-- Build --",
+        `Vite version: ${snapshot.viteVersion}`,
+        "",
+        "-- Native / OS --",
         native
             ? [
                   `OS: ${native.osType} ${native.osVersion} (${native.bitness}, ${native.architecture})`,
-                  `WebView engine version: ${native.webviewVersion ?? "Unknown"}`,
+                  `Engine version: ${native.webviewVersion ?? "Unknown"}`,
               ].join("\n")
             : "Not available (running in a standard browser)",
         "",

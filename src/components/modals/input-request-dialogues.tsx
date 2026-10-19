@@ -1,17 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useGameProps } from "@/lib/hooks/props-hooks";
+import { CHOICE_INPUT_REVEAL_DELAY_MS } from "@/constants";
+import { useNarrationFunctions } from "@/lib/hooks/narration-hooks";
 import { useQueryDialogue, useQueryInputValue } from "@/lib/query/narration-query";
+import { GameStatus } from "@/lib/stores/game-status-store";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
-import { narration } from "@drincs/pixi-vn";
 import { useDebouncedValue } from "@tanstack/react-pacer";
 import { useSelector } from "@tanstack/react-store";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import Markdown from "react-markdown";
-import rehypeRaw from "rehype-raw";
-import remarkGfm from "remark-gfm";
+import { MarkdownTypewriter } from "markdown-typewriter/react";
+import type { ComponentProps } from "react";
+
+const INLINE_MARKDOWN_COMPONENTS = {
+    p: (props: ComponentProps<"span">) => <span {...props} />,
+};
 
 export function InputRequestDialog() {
     const { data: { lastText: text } = {} } = useQueryDialogue();
@@ -19,9 +23,14 @@ export function InputRequestDialog() {
         data: { isRequired, type, currentValue } = { currentValue: undefined, isRequired: false },
     } = useQueryInputValue<string | number>();
     const isTyping = useSelector(TextDisplaySettings.store, (state) => state.inProgress);
-    const [open] = useDebouncedValue(!isTyping && isRequired, { wait: 50 });
+    const loading = useSelector(GameStatus.store, (state) => state.loading);
+    const readyToShow = !isTyping && isRequired && !loading;
+    const [sustainedReady] = useDebouncedValue(readyToShow, {
+        wait: CHOICE_INPUT_REVEAL_DELAY_MS,
+    });
+    const open = readyToShow && sustainedReady;
     const [tempValue, setTempValue] = useState<string | number>();
-    const gameProps = useGameProps();
+    const { submitInputValue: submitNarrationInputValue } = useNarrationFunctions();
     const { t } = useTranslation(["ui"]);
 
     useEffect(() => {
@@ -34,24 +43,21 @@ export function InputRequestDialog() {
         if (!canConfirm) {
             return;
         }
-        narration.inputValue = tempValue || currentValue;
+        submitNarrationInputValue(tempValue || currentValue);
         setTempValue(undefined);
-        gameProps.invalidateInterfaceData();
-    }, [canConfirm, currentValue, gameProps, tempValue]);
+    }, [canConfirm, currentValue, submitNarrationInputValue, tempValue]);
 
     return (
         <Dialog open={open}>
             <DialogContent showCloseButton={false}>
                 {text && (
-                    <Markdown
-                        remarkPlugins={[remarkGfm]}
-                        rehypePlugins={[rehypeRaw]}
-                        components={{
-                            p: (props) => <span {...props} />,
-                        }}
+                    <MarkdownTypewriter
+                        allowHtml
+                        animated={false}
+                        components={INLINE_MARKDOWN_COMPONENTS}
                     >
                         {text}
-                    </Markdown>
+                    </MarkdownTypewriter>
                 )}
                 <Input
                     value={tempValue ?? ""}

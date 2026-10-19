@@ -1,6 +1,5 @@
 import { manifest } from "@/assets";
 import { AUDIO_BUNDLE_NAME } from "@/constants";
-import type { FileRouteTypes } from "@/routeTree.gen";
 import { Assets, sound } from "@drincs/pixi-vn";
 
 let assetsInitialized = false;
@@ -12,19 +11,20 @@ let assetsInitialized = false;
  */
 export async function defineAssets() {
     if (!assetsInitialized) {
-        await Assets.init({ manifest });
+        const origin = `${location.protocol}//${location.host}/`;
+        Assets.resolver.rootPath = origin;
+        await Assets.init({ manifest, basePath: `${origin}assets/` });
         assetsInitialized = true;
     }
 
     // The game will not start until these asserts are loaded.
-    await Assets.loadBundle("/" as FileRouteTypes["fullPaths"]);
+    await Assets.loadBundle("images");
 
     // The audio bundle will be loaded in the background, so it will be available when needed, but it won't block the game start.
     sound.backgroundLoadBundle(AUDIO_BUNDLE_NAME);
 
     // The game will start immediately, but these asserts will be loaded in the background.
     // Assets.backgroundLoadBundle("main_menu");
-    // Assets.backgroundLoad("background_main_menu");
 }
 
 /**

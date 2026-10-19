@@ -128,6 +128,13 @@ export function DiagnosticsSettingsPage() {
                     />
                 </DiagnosticsSection>
 
+                <DiagnosticsSection title={t("diagnostics_section_build")}>
+                    <DiagnosticRow
+                        label={t("diagnostics_vite_version")}
+                        value={diagnostics.viteVersion}
+                    />
+                </DiagnosticsSection>
+
                 <DiagnosticsSection title={t("diagnostics_section_device")}>
                     <DiagnosticRow label={t("diagnostics_platform")} value={diagnostics.platform} />
                     <DiagnosticRow

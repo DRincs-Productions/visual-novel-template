@@ -6,7 +6,7 @@ import { overlayTextShadowClass } from "@/constants";
 import { useSaveActions } from "@/lib/hooks/save-hooks";
 import { useQuerySaves } from "@/lib/query/save-query";
 import { cn } from "@/lib/utils";
-import { downloadGameSave, getSaveSlotLabel } from "@/lib/utils/save-utility";
+import { save } from "@/lib/utils/save-utility";
 import type { FileRouteTypes } from "@/routeTree.gen";
 import { useLocation } from "@tanstack/react-router";
 import { Download, Save, SquarePen, Trash2 } from "lucide-react";
@@ -73,7 +73,7 @@ export function SaveSlot({ saveId }: { saveId: number }) {
                     {saveData.date.toLocaleTimeString()}
                 </span>
                 <span className={cn("text-sm text-neutral-300", overlayTextShadowClass)}>
-                    {getSaveSlotLabel(saveId, t)}
+                    {save.getSlotLabel(saveId, t)}
                 </span>
             </div>
             {/* top-right delete */}
@@ -97,7 +97,7 @@ export function SaveSlot({ saveId }: { saveId: number }) {
                     size="icon"
                     onClick={(e) => {
                         e.stopPropagation();
-                        downloadGameSave(saveData);
+                        save.download(saveData);
                     }}
                     aria-label={t("save_to_file")}
                 >

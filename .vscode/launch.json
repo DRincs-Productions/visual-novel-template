@@ -18,24 +18,24 @@
       "preLaunchTask": "Restart Vite Dev Server"
     },
     {
-      "type": "lldb",
-      "request": "launch",
-      "name": "Run as Desktop App (Dev)",
-      "program": "${workspaceFolder}/src-tauri/target/debug/my-app-package-name",
-      "args": [],
-      "cwd": "${workspaceFolder}",
-      "terminal": "console",
-      "preLaunchTask": "Cargo Build (Desktop Dev)",
-      "postDebugTask": "Stop Vite Dev Server"
-    },
-    {
-      "name": "Debug Game Preview",
+      "name": "Game Preview",
       "request": "launch",
       "type": "editor-browser",
       "url": "http://localhost:4173",
       "webRoot": "${workspaceFolder}",
       "preLaunchTask": "Start Vite Preview Server",
       "postDebugTask": "Stop Vite Preview Server"
+    },
+    {
+      "name": "Game Preview (Desktop)",
+      "request": "launch",
+      "type": "lldb",
+      "program": "${workspaceFolder}/src-tauri/target/debug/my-app-package-name",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "terminal": "console",
+      "preLaunchTask": "Cargo Build (Desktop Dev)",
+      "postDebugTask": "Stop Vite Dev Server"
     }
   ]
 }

@@ -1,4 +1,4 @@
-import type { StepLabelProps } from "@drincs/pixi-vn";
+import { type StepLabelProps } from "@drincs/pixi-vn";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";

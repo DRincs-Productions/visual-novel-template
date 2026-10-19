@@ -1,4 +1,8 @@
 import { Spinner } from "@/components/ui/spinner";
+import { useQueryDialogue } from "@/lib/query/narration-query";
+import { GameStatus } from "@/lib/stores/game-status-store";
+import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
+import { useSelector } from "@tanstack/react-store";
 import { useEffect, useState } from "react";
 
 export function PendingComponent() {
@@ -28,4 +32,23 @@ export function DelayedAnimatedDots({ delay = 300 }: { delay?: number }) {
         return () => clearTimeout(id);
     }, [delay]);
     return visible ? <AnimatedDots /> : null;
+}
+
+export function NextStepLoadingDots() {
+    const nextStepLoading = useSelector(GameStatus.store, (state) => state.loading);
+    const typewriterInProgress = useSelector(
+        TextDisplaySettings.store,
+        (state) => state.inProgress,
+    );
+    const { isLoading } = useQueryDialogue();
+
+    if (typewriterInProgress || (!nextStepLoading && !isLoading)) {
+        return null;
+    }
+
+    return (
+        <span className="ml-1 inline-flex">
+            <DelayedAnimatedDots />
+        </span>
+    );
 }

@@ -6,12 +6,28 @@ import { SearchParams } from "@/lib/stores/search-param-store";
 import { SkipSettings } from "@/lib/stores/skip-settings-store";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
 import { hasScrollableParent, isScrollableElement } from "@/lib/utils/scroll-utils";
-import { narration, stepHistory, type StoredIndexedChoiceInterface } from "@drincs/pixi-vn";
+import {
+    Game,
+    type LabelAbstract,
+    type LabelIdType,
+    narration,
+    stepHistory,
+    type StepLabelPropsType,
+    type StorageElementType,
+    type StoredIndexedChoiceInterface,
+} from "@drincs/pixi-vn";
 import { useDebouncer } from "@tanstack/react-pacer";
 import { useSelector } from "@tanstack/react-store";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
+/**
+ * Functions meant to be triggered from UI (buttons, hotkeys, pointer handlers, etc.).
+ * They must not be called from within a label's step: they manage UI-only concerns
+ * (e.g. {@link GameStatus} loading state, blocking while a menu is open) that a step
+ * running as part of the narration itself should not go through. Inside a label, use
+ * `narration` directly (e.g. `narration.jump`, `narration.call`) instead of these.
+ */
 export function useNarrationFunctions() {
     const gameProps = useGameProps();
     const searchParams = useSelector(SearchParams.store, (state) => state);
@@ -65,8 +81,8 @@ export function useNarrationFunctions() {
         async (item: StoredIndexedChoiceInterface) => {
             if (hasOpenMenu) return;
             GameStatus.setLoading(true);
-            return narration
-                .selectChoice(item, gameProps)
+            return narration.choices
+                .select(item, gameProps)
                 .then(() => {
                     gameProps.invalidateInterfaceData();
                     GameStatus.setLoading(false);
@@ -79,10 +95,71 @@ export function useNarrationFunctions() {
         [gameProps, hasOpenMenu],
     );
 
+    const startNewGame = useCallback(
+        async <T extends {}>(label: LabelAbstract<any, T> | LabelIdType, props?: T) => {
+            GameStatus.setLoading(true);
+            return Game.start(label, { ...gameProps, ...props } as StepLabelPropsType<T>)
+                .then(() => gameProps.invalidateInterfaceData())
+                .finally(() => GameStatus.setLoading(false));
+        },
+        [gameProps],
+    );
+
+    const jump = useCallback(
+        async <T extends {}>(label: LabelAbstract<any, T> | LabelIdType, props?: T) => {
+            if (hasOpenMenu) return;
+            GameStatus.setLoading(true);
+            return narration
+                .jump(label, { ...gameProps, ...props } as StepLabelPropsType<T>)
+                .then((result) => {
+                    gameProps.invalidateInterfaceData();
+                    GameStatus.setLoading(false);
+                    return result;
+                })
+                .catch((e) => {
+                    GameStatus.setLoading(false);
+                    console.error(e);
+                });
+        },
+        [gameProps, hasOpenMenu],
+    );
+
+    const call = useCallback(
+        async <T extends {}>(label: LabelAbstract<any, T> | LabelIdType, props?: T) => {
+            if (hasOpenMenu) return;
+            GameStatus.setLoading(true);
+            return narration
+                .call(label, { ...gameProps, ...props } as StepLabelPropsType<T>)
+                .then((result) => {
+                    gameProps.invalidateInterfaceData();
+                    GameStatus.setLoading(false);
+                    return result;
+                })
+                .catch((e) => {
+                    GameStatus.setLoading(false);
+                    console.error(e);
+                });
+        },
+        [gameProps, hasOpenMenu],
+    );
+
+    const submitInputValue = useCallback(
+        (value: StorageElementType) => {
+            if (hasOpenMenu) return;
+            narration.input.value = value;
+            gameProps.invalidateInterfaceData();
+        },
+        [gameProps, hasOpenMenu],
+    );
+
     return {
         goNext,
         goBack,
         selectChoice,
+        startNewGame,
+        jump,
+        call,
+        submitInputValue,
     };
 }
 
@@ -95,7 +172,10 @@ const isDragGesture = (dx: number, dy: number) =>
 export function useNarrationPointerHandlers() {
     const { goNext } = useNarrationFunctions();
     const skipEnabled = useSelector(SkipSettings.store, (state) => state.enabled);
-    const typewriterInProgress = useSelector(TextDisplaySettings.store, (state) => state.inProgress);
+    const typewriterInProgress = useSelector(
+        TextDisplaySettings.store,
+        (state) => state.inProgress,
+    );
     const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
     const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const longPressTriggered = useRef(false);

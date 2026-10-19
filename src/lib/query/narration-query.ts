@@ -20,7 +20,7 @@ export function useQueryChoiceMenuOptions() {
     return useQuery({
         queryKey: [NARRATION_DATA_USE_QUERY_KEY, CHOICE_MENU_OPTIONS_USE_QUERY_KEY],
         queryFn: async () =>
-            narration.choices?.map((option) => ({
+            narration.choices.list?.map((option) => ({
                 ...option,
                 text:
                     typeof option.text === "string"
@@ -35,9 +35,9 @@ export function useQueryInputValue<T>() {
     return useQuery({
         queryKey: [NARRATION_DATA_USE_QUERY_KEY, INPUT_VALUE_USE_QUERY_KEY],
         queryFn: async () => ({
-            isRequired: narration.isRequiredInput,
-            type: narration.inputType,
-            currentValue: narration.inputValue as T | undefined,
+            isRequired: narration.input.isRequired,
+            type: narration.input.type,
+            currentValue: narration.input.value as T | undefined,
         }),
         placeholderData: keepPreviousData,
     });

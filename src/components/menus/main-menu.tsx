@@ -4,16 +4,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { CANVAS_UI_LAYER_NAME, overlayTextShadowClass } from "@/constants";
+import { useNarrationFunctions } from "@/lib/hooks/narration-hooks";
 import { useSetSearchParamState } from "@/lib/hooks/navigation-hooks";
 import { useGameProps } from "@/lib/hooks/props-hooks";
 import { useQuit } from "@/lib/hooks/quit-hooks";
 import { useQueryLastSave } from "@/lib/query/save-query";
-import { InterfaceSettings } from "@/lib/stores/interface-settings-store";
+import { GameStatus } from "@/lib/stores/game-status-store";
 import { cn } from "@/lib/utils";
-import { loadRefreshSave, loadSave } from "@/lib/utils/save-utility";
-import { canvas, Game, ImageSprite } from "@drincs/pixi-vn";
+import { autoExit, save } from "@/lib/utils/save-utility";
+import { canvas, ImageSprite } from "@drincs/pixi-vn";
 import { useHotkeys } from "@tanstack/react-hotkeys";
 import { useQueryClient } from "@tanstack/react-query";
+import { useSelector } from "@tanstack/react-store";
 import { AlertCircle, CirclePlay, LogOut, Play, Save, Settings } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -27,7 +29,8 @@ export function MainMenu() {
     const { uiTransition: t, navigate } = gameProps;
     const setSettings = useSetSearchParamState<boolean>("settings");
     const setSettingsTab = useSetSearchParamState<string>("settings_tab");
-    const [loading, setLoading] = useState(false);
+    const { startNewGame } = useNarrationFunctions();
+    const loading = useSelector(GameStatus.store, (state) => state.loading);
     const menuRef = useRef<HTMLDivElement>(null);
     const { quit, canQuit } = useQuit();
 
@@ -112,8 +115,7 @@ export function MainMenu() {
     ]);
 
     useEffect(() => {
-        InterfaceSettings.setHidden(false);
-        const bg = new ImageSprite({}, "background_main_menu");
+        const bg = new ImageSprite({}, "images_main-menu");
         bg.load();
         const layer = canvas.getLayer(CANVAS_UI_LAYER_NAME);
         if (layer) {
@@ -136,16 +138,17 @@ export function MainMenu() {
             {/* Buttons card – semi-transparent, fade-in from left on mount */}
             <Card className="relative z-10 w-full max-w-xs sm:max-w-sm bg-background/70 backdrop-blur-sm animate-in fade-in slide-in-from-left-10 duration-500 ease-out fill-mode-both">
                 <CardContent ref={menuRef} role="menu" className="flex flex-col gap-2 pt-4">
-                    <ContinueMenuButton disabled={loading} onLoadingChange={setLoading} />
+                    <ContinueMenuButton
+                        disabled={loading}
+                        onLoadingChange={GameStatus.setLoading}
+                    />
 
                     <Button
                         role="menuitem"
                         onClick={async () => {
-                            setLoading(true);
+                            GameStatus.setLoading(true);
                             await navigate({ to: "/game/narration" });
-                            Game.start("start", gameProps)
-                                .then(() => gameProps.invalidateInterfaceData())
-                                .finally(() => setLoading(false));
+                            startNewGame("start");
                         }}
                         disabled={loading}
                         className={menuButtonClass}
@@ -230,13 +233,13 @@ export function ContinueMenuButton({
     const { t } = useTranslation(["ui"]);
     const queryClient = useQueryClient();
     const [loading, setLoading] = useState(false);
-    const hasRefreshSave = lastSave?.id === -1;
+    const hasAutoExitSave = lastSave?.id === -1;
 
     const handleClick = useCallback(() => {
         if (!lastSave) return;
         setLoading(true);
         onLoadingChange?.(true);
-        (hasRefreshSave ? loadRefreshSave() : loadSave(lastSave))
+        (hasAutoExitSave ? autoExit.load() : save.restore(lastSave))
             .then(() => queryClient.invalidateQueries())
             .catch((e) => {
                 toast.error(t("fail_load"));
@@ -246,7 +249,7 @@ export function ContinueMenuButton({
                 setLoading(false);
                 onLoadingChange?.(false);
             });
-    }, [lastSave, hasRefreshSave, queryClient, t, onLoadingChange]);
+    }, [lastSave, hasAutoExitSave, queryClient, t, onLoadingChange]);
 
     const isDisabled = (!isLoading && !lastSave) || loading || disabled;
 
@@ -258,13 +261,13 @@ export function ContinueMenuButton({
                 <CirclePlay className="size-4" />
             )}
             {t("continue")}
-            {hasRefreshSave ? (
+            {hasAutoExitSave ? (
                 <AlertCircle aria-hidden="true" className="ml-1 size-4 text-orange-500" />
             ) : null}
         </>
     );
 
-    if (hasRefreshSave) {
+    if (hasAutoExitSave) {
         return (
             <Tooltip>
                 <TooltipTrigger
@@ -279,7 +282,7 @@ export function ContinueMenuButton({
                         </Button>
                     }
                 />
-                <TooltipContent>{t("continue_refresh_save_tooltip")}</TooltipContent>
+                <TooltipContent>{t("continue_auto_exit_save_tooltip")}</TooltipContent>
             </Tooltip>
         );
     }

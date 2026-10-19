@@ -1,4 +1,4 @@
-import { DelayedAnimatedDots } from "@/components/loading";
+import { NextStepLoadingDots } from "@/components/loading";
 import { QuickTools } from "@/components/quick-tools";
 import { Card, CardContent } from "@/components/ui/card";
 import { Image } from "@/components/ui/image";
@@ -9,10 +9,7 @@ import { useQueryDialogue } from "@/lib/query/narration-query";
 import { TextDisplaySettings } from "@/lib/stores/text-display-settings-store";
 import { useSelector } from "@tanstack/react-store";
 import { type RefObject, memo, useCallback, useMemo, useRef } from "react";
-import Markdown from "react-markdown";
-import { MarkdownTypewriterHooks } from "react-markdown-typewriter";
-import rehypeRaw from "rehype-raw";
-import remarkGfm from "remark-gfm";
+import { MarkdownTypewriter } from "markdown-typewriter/react";
 
 export function NarrationCards() {
     const { data: { character } = {} } = useQueryDialogue();
@@ -122,27 +119,23 @@ export const Text = memo(function Text({
     return (
         <p className="prose dark:prose-invert m-0 max-w-full p-0">
             <span>
-                <Markdown
-                    remarkPlugins={[remarkGfm]}
-                    rehypePlugins={[rehypeRaw]}
-                    components={markdownComponents}
-                >
+                {/* Already typed out: rendered like the animated text, without the animation. */}
+                <MarkdownTypewriter allowHtml animated={false} components={markdownComponents}>
                     {text}
-                </Markdown>
+                </MarkdownTypewriter>
             </span>
             <span>
                 <span> </span>
-                <MarkdownTypewriterHooks
-                    remarkPlugins={[remarkGfm]}
-                    rehypePlugins={[rehypeRaw]}
+                <MarkdownTypewriter
+                    allowHtml
                     delay={typewriterDelay}
                     motionProps={motionProps}
-                    fallback={<DelayedAnimatedDots />}
                     specialCharacters={specialCharacters}
                 >
                     {animatedText}
-                </MarkdownTypewriterHooks>
+                </MarkdownTypewriter>
             </span>
+            <NextStepLoadingDots />
         </p>
     );
 });

@@ -1,7 +1,6 @@
-import { systemInfo } from "@/lib/system-info";
+import { getSystemInfo, getWebviewVersion } from "@/lib/system-info";
+import type { NativeDiagnostics } from "@/lib/utils/device-diagnostics-utility";
 import {
-    type DeviceDiagnosticsSnapshot,
-    type NativeDiagnostics,
     detectBrowserEngine,
     detectPlatform,
     getBrowserCapabilities,
@@ -15,7 +14,9 @@ import {
     getPixiVnVersion,
     getResolutionInfo,
     getToneJsVersion,
+    getViteVersion,
     getWebglDiagnostics,
+    type DeviceDiagnosticsSnapshot,
 } from "@/lib/utils/device-diagnostics-utility";
 import { useEffect, useMemo, useState } from "react";
 
@@ -36,6 +37,7 @@ export function useDeviceDiagnostics(): DeviceDiagnosticsSnapshot {
     const pixiVnVersion = useMemo(() => getPixiVnVersion(), []);
     const toneJsVersion = useMemo(() => getToneJsVersion(), []);
     const motionVersion = useMemo(() => getMotionVersion(), []);
+    const viteVersion = useMemo(() => getViteVersion(), []);
 
     const [resolution, setResolution] = useState(() => getResolutionInfo());
     const [mobile, setMobile] = useState(() => getMobileDiagnostics());
@@ -46,12 +48,10 @@ export function useDeviceDiagnostics(): DeviceDiagnosticsSnapshot {
 
     useEffect(() => {
         let cancelled = false;
-        Promise.all([systemInfo.getSystemInfo(), systemInfo.getWebviewVersion()]).then(
-            ([info, webviewVersion]) => {
-                if (cancelled || !info) return;
-                setNative({ ...info, webviewVersion });
-            },
-        );
+        Promise.all([getSystemInfo(), getWebviewVersion()]).then(([info, webviewVersion]) => {
+            if (cancelled || !info) return;
+            setNative({ ...info, webviewVersion });
+        });
         return () => {
             cancelled = true;
         };
@@ -92,5 +92,6 @@ export function useDeviceDiagnostics(): DeviceDiagnosticsSnapshot {
         pixiVnVersion,
         toneJsVersion,
         motionVersion,
+        viteVersion,
     };
 }
