@@ -13,9 +13,13 @@ export function useTestingBridge() {
             continue: goNext,
             back: goBack,
             selectChoice,
-            start: async () => {
+            start: async (label, props) => {
                 await gameProps.navigate({ to: "/game/narration" });
-                return await startNewGame("start");
+                return await startNewGame(label, props);
+            },
+            navigate: async (screen) => {
+                await gameProps.navigate({ to: screen as never });
+                await gameProps.invalidateInterfaceData();
             },
             jump,
             call,
