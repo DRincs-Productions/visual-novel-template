@@ -66,9 +66,11 @@ export function TextSizeSettings() {
                     max={200}
                     step={10}
                     value={[fontSize]}
-                    onValueChange={(v) =>
-                        typeof v === "number" && TextDisplaySettings.setFontSize(v)
-                    }
+                    onValueChange={(v) => {
+                        const nextValue = Array.isArray(v) ? v[0] : v;
+                        if (typeof nextValue === "number")
+                            TextDisplaySettings.setFontSize(nextValue);
+                    }}
                     className="flex-1"
                 />
                 <span className="w-14 text-right text-xs tabular-nums">{fontSize}%</span>

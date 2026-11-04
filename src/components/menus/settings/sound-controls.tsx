@@ -75,7 +75,10 @@ function SoundRow({
                     min={0}
                     max={100}
                     value={[volume]}
-                    onValueChange={(v) => typeof v === "number" && onVolumeChange(v)}
+                    onValueChange={(v) => {
+                        const nextValue = Array.isArray(v) ? v[0] : v;
+                        if (typeof nextValue === "number") onVolumeChange(nextValue);
+                    }}
                     disabled={disabled}
                     className="flex-1"
                 />
