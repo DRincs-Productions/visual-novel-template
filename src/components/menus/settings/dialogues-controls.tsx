@@ -26,9 +26,11 @@ export function DialoguesControls() {
                         max={200}
                         step={10}
                         value={[typewriterDelay]}
-                        onValueChange={(v) =>
-                            typeof v === "number" && TextDisplaySettings.setDelay(v)
-                        }
+                        onValueChange={(v) => {
+                            const nextValue = Array.isArray(v) ? v[0] : v;
+                            if (typeof nextValue === "number")
+                                TextDisplaySettings.setDelay(nextValue);
+                        }}
                         className="flex-1"
                     />
                     <span className="w-14 text-right text-xs tabular-nums">
@@ -72,7 +74,10 @@ export function AutoForwardToggle() {
                     max={10}
                     step={1}
                     value={[autoTime]}
-                    onValueChange={(v) => typeof v === "number" && AutoSettings.setTime(v)}
+                    onValueChange={(v) => {
+                        const nextValue = Array.isArray(v) ? v[0] : v;
+                        if (typeof nextValue === "number") AutoSettings.setTime(nextValue);
+                    }}
                     disabled={!autoEnabled}
                     className="flex-1"
                 />
