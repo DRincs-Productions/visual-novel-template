@@ -1,6 +1,7 @@
 import { assetAliasIds, bundleIds, characterIdsEnum } from "@/pixi-vn.keys.gen";
 import { addBaseHashtagCommands, HashtagCommands } from "@drincs/pixi-vn-ink";
 import { RegisteredCharacters } from "@drincs/pixi-vn/characters";
+import { achievements } from "@drincs/roves-api/achievements";
 import zod from "zod";
 
 addBaseHashtagCommands({ bundleIds, assetAliasIds });
@@ -37,5 +38,21 @@ HashtagCommands.add(
 # rename <characterId> <newName>
 \`\`\``,
         validation: zod.tuple([zod.literal("rename"), zod.enum(characterIdsEnum), zod.string()]),
+    },
+);
+
+HashtagCommands.add(
+    async (script) => {
+        await achievements.unlock(script[2]);
+        return true;
+    },
+    {
+        name: "achievement",
+        description: `Unlocks an achievement on the active platform (e.g. Steam) via Roves.
+
+\`\`\`ink
+# unlock achievement <achievementId>
+\`\`\``,
+        validation: zod.tuple([zod.literal("unlock"), zod.literal("achievement"), zod.string()]),
     },
 );
