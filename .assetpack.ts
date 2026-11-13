@@ -84,6 +84,8 @@ function normalizeAliases(options: { output: string }): AssetPipe<{ output: stri
 const config: AssetPackConfig = {
     entry: "./src/assets",
     output: "./public/assets",
+    cache: true,
+    cacheLocation: ".assetpack",
     ignore: ["**/*.ts", "**/*.js", "**/*.gen.*"],
     pipes: [
         ...pixiPipes({
