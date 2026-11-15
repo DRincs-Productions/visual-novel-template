@@ -116,12 +116,6 @@ export default defineConfig(({ mode }) => ({
         rollupOptions: {
             output: {
                 manualChunks(id) {
-                    if (
-                        id.includes("react-markdown") ||
-                        id.includes("rehype-raw") ||
-                        id.includes("remark-gfm")
-                    )
-                        return "markdown";
                     if (id.includes("tone")) return "tone";
                     if (id.includes("@drincs/pixi-vn-spine")) return "spine";
                     if (id.includes("pixi.js")) return "pixi.js";
