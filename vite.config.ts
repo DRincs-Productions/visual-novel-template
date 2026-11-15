@@ -119,7 +119,6 @@ export default defineConfig(({ mode }) => ({
             output: {
                 manualChunks(id) {
                     if (id.includes("tone")) return "tone";
-                    if (id.includes("@drincs/pixi-vn-spine")) return "spine";
                     if (id.includes("pixi.js")) return "pixi.js";
                     if (id.includes("motion")) return "motion";
                     if (id.includes("@drincs/pixi-vn")) return "pixi-vn";
