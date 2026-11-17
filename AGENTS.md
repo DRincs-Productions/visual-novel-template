@@ -10,6 +10,8 @@ Consult the official Pixi’VN documentation when implementing or changing engin
 
 ## Project structure
 
+- `src/pixi-vn.d.ts`: game-specific Pixi?VN type extensions.
+
 Application code lives in `src/`.
 
 - `src/assets/`: game assets such as images, audio, and video. Follow the asset manifest and loading system already in place; when adding or moving assets, update the required manifests or configuration.
@@ -83,3 +85,4 @@ The packages produced by `release.yml` are **not signed**: Android is a debug `.
 - **Desktop (Windows/macOS)**: `roves-action` does not sign them. Sign the files afterwards with your own certificates (Windows code-signing certificate; Apple Developer ID plus notarization for macOS), or accept the OS security warnings.
 
 Never commit keystores, certificates, passwords, or provisioning profiles: use GitHub secrets only. See the `roves-action` inputs in the [Roves documentation](https://roves.pixi-vn.com/docs/action) for the up-to-date list.
+
