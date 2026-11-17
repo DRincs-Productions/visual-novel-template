@@ -21,7 +21,10 @@
     {
       "label": "Start Vite Dev Server",
       "type": "shell",
-      "command": "npm run dev",
+      "command": "if lsof -ti:5173 -sTCP:LISTEN >/dev/null 2>&1; then echo \"Local: http://localhost:5173/ (port already in use; startup skipped)\"; else npm run dev -- --port 5173 --strictPort; fi",
+      "windows": {
+        "command": "if (Get-NetTCPConnection -State Listen -LocalPort 5173 -ErrorAction SilentlyContinue) { Write-Host \"Local: http://localhost:5173/ (port already in use; startup skipped)\" } else { npm run dev -- --port 5173 --strictPort }"
+      },
       "isBackground": true,
       "runOptions": {
         "runOn": "folderOpen"
