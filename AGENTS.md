@@ -11,6 +11,8 @@ Consult the official Pixi’VN documentation when implementing or changing engin
 
 ## Project structure
 
+- `src/pixi-vn.d.ts`: game-specific Pixi?VN type extensions.
+
 Application code lives in `src/`.
 
 - `src/assets/`: game assets such as images, audio, and video. Follow the asset manifest and loading system already in place; when adding or moving assets, update the required manifests or configuration.
@@ -150,3 +152,4 @@ To include the library in the final installer you need to tell Tauri to bundle i
 ```
 
 Tauri v2 merges the matching file into `tauri.conf.json` automatically at build time. Create only the files for the platforms you want to distribute on — one, two, or all three.
+
