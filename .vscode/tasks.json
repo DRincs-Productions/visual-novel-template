@@ -46,7 +46,7 @@
         "reveal": "always",
         "panel": "dedicated",
         "clear": true,
-        "close": false
+        "close": true
       }
     },
     {
