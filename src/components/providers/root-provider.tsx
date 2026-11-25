@@ -22,7 +22,7 @@ export function RootProvider({ children }: { children: React.ReactNode }) {
                 <AlertDialogProvider>
                     <TooltipProvider>
                         <Hotkeys />
-                        {import.meta.env.DEV && <TestingBridge />}
+                        <TestingBridge />
                         {children}
                     </TooltipProvider>
                 </AlertDialogProvider>
